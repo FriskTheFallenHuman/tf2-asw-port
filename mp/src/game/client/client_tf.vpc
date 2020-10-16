@@ -13,8 +13,8 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	".\hl2;.\tf;.\tf\vgui;$SRCDIR\game\shared\Multiplayer;$SRCDIR\game\shared\tf;$BASE"
-		$PreprocessorDefinitions		"$BASE;TF_MOD_CLIENT"
+		$AdditionalIncludeDirectories	"$BASE;.\hl2;.\tf;.\tf\vgui;$SRCDIR\game\shared\Multiplayer;$SRCDIR\game\shared\tf"
+		$PreprocessorDefinitions		"$BASE;TF_MOD_CLIENT;GAMEUI_EMBEDDED;GAMEUI_EXPORTS"
 	}
 }
 
@@ -23,6 +23,7 @@ $Project "Client (TF)"
 	$Folder "Source Files"
 	{
 		-$File	"$SRCDIR\game\shared\weapon_parse_default.cpp"
+		$File	"c_mod_lesson_stubs.cpp"
 	}
 	
 	$Folder	"Source Files"
