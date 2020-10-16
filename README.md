@@ -1,5 +1,5 @@
 # TF2 -> ASW Port
-Porting Team Fortress 2 base to the newer Alien Swarm Engine! Base to start your mod off. Now with new Open Source flavor!
+Porting The 2007 Team Fortress 2 base to the newer Alien Swarm Engine! Base to start your mod off. Now with new Open Source flavor!
 
 --
 
