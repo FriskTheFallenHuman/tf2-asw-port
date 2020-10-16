@@ -1,0 +1,2 @@
+﻿$Macro PLATSUBDIR	"\."	[$WIN32]
+$Macro PLATSUBDIR	"\x64"	[$WIN64]
