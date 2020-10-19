@@ -8,7 +8,7 @@ $IgnoreRedundancyWarning	"ON"
 
 // Disable frame pointer omission to allow fast stack walking, necessary for
 // good ETW profiling.
-//$Conditional  NOFPO  "1"
+$Macro  NOFPO  "1"
 
 $MacroRequired				"SRCDIR"
 $MacroRequired				"OUTLIBNAME"
@@ -74,7 +74,7 @@ $Configuration "Release"
 		$InlineFunctionExpansion			"Any Suitable (/Ob2)"
 		$EnableIntrinsicFunctions			"Yes (/Oi)"
 		$FavorSizeOrSpeed					"Favor Fast Code (/Ot)"
-		$OmitFramePointers					"Yes (/Oy)" [!$NOFPO]
+		$OmitFramePointers
 		$EnableFiberSafeOptimizations
 		$WholeProgramOptimization
 
@@ -101,7 +101,6 @@ $Configuration "Release"
 		$EnableFloatingPointExceptions
 
 		// Language
-		//$LanguageStandard					"Preview - Features from the Latest C++ Working Draft (std:c++latest)"
 		$DisableLanguageExtensions
 		$DefaultCharUnsigned
 		$TreatWCHAR_TAsBuiltInType			"Yes (/Zc:wchar_t)"
@@ -140,14 +139,9 @@ $Configuration "Release"
 		$OmitDefaultLibraryNames
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
 
-		// Enable extra debugging information. This switch requires VS 2013 Update 3.
-		// With VS 2013 make sure that Edit-And-Continue is disabled in the debugger settings so that
-		// the debugger uses the enhanced debug information.
-		// http://randomascii.wordpress.com/2013/09/11/debugging-optimized-codenew-in-visual-studio-2012/
-		$AdditionalOptions					"$BASE /Zo"
+		// Enable extra debugging information.
+		$AdditionalOptions					"/d2Zi+"
 		$AdditionalOptions					"$BASE /Oy-"	[$NOFPO]
-		// Fix mismatch with protocollib release
-		$AdditionalOptions					"$BASE /D_ITERATOR_DEBUG_LEVEL=0"
 	}
 
 	$Librarian

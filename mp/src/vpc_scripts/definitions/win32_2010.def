@@ -26,21 +26,6 @@
 		{
 			"type"	"ignore"
 		}
-
-		"$TargetCopies"
-		{
-			"type"	"ignore"
-		}
-
-		"$BuildMultiArch"
-		{
-			"type"	"ignore"
-		}
-
-		"$BuildX64Only"
-		{
-			"type"	"ignore"
-		}
 	
 		"$InheritedProjectPropertySheets"
 		{
@@ -525,16 +510,6 @@
 		}
 
 		// Language
-		//"$LanguageStandard"
-		//{
-		//	"ordinals"
-		//	{
-		//		"ISO C++14 Standard (std:c++14)"	"stdcpp14"
-		//		"ISO C++17 Standard (std:c++17)"	"stdcpp17"
-		//		"Preview - Features from the Latest C++ Working Draft (std:c++latest)"		"stdcpplatest"
-		//	}
-		//}
-
 		"$DisableLanguageExtensions"
 		{
 			"type"	"bool"
@@ -703,7 +678,7 @@
 			"type"	"bool"
 		}
 						
-		"$OmitDefaultLibName"
+		"$OmitDefaultLibraryName"
 		{
 			"type"		"bool"
 			"legacy"	"$OmitDefaultLibraryNames"
@@ -839,16 +814,6 @@
 		}
 
 		"$GCC_ExtraLinkerFlags"
-		{
-			"type"	"ignore"
-		}
-		
-		"$GCC_CustomVersionScript"
-		{
-			"type"	"ignore"
-		}
-
-		"$LinkAsBundle"
 		{
 			"type"	"ignore"
 		}
@@ -1070,14 +1035,8 @@
 		// Debugging
 		"$GenerateDebugInfo"
 		{
+			"type"		"bool"
 			"output"	"GenerateDebugInformation"
-			"ordinals"
-			{
-				"No"					"false"
-				"Yes (/DEBUG)"			"true"
-				"Generate Debug Information optimized for faster links (/DEBUG:FASTLINK)"	"DebugFastLink"
-				"Generate Debug Information optimized for sharing and publishing (/DEBUG:FULL)"	"DebugFull"
-			}
 		}
 		
 		"$GenerateProgramDatabaseFile"
@@ -1280,6 +1239,7 @@
 		"$NoEntryPoint"
 		{
 			"type"		"bool"
+			"output"	"ResourceOnlyDLL"
 		}
 		
 		"$SetChecksum"
@@ -1308,9 +1268,10 @@
 			}
 		}
 		
-		"$DataExecutionPrevention"
+		"$DataExecutionPrevention(DEP)"
 		{
 			"type"	"bool"
+			"alias"	"DataExecutionPrevention"
 		}
 		
 		"$TurnOffAssemblyGeneration"
@@ -1871,7 +1832,7 @@
 
 		"$AdditionalDependencies"
 		{
-			"type"		"string"
+			"type"	"string"
 			"output"	"AdditionalInputs"
 		}
 		

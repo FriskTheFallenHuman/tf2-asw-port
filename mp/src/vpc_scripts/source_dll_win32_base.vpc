@@ -12,8 +12,7 @@ $MacroRequired				"OUTBINDIR"
 		
 $Macro OUTBINDIR	"$OUTBINDIR$PLATSUBDIR"
 $Macro LIBPUBLIC	"$SRCDIR\lib\public$PLATSUBDIR"
-$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR" [!$VS2015]
-$Macro LIBCOMMON	"$SRCDIR\lib\common\win32\2015\release" [$VS2015]
+$Macro LIBCOMMON	"$SRCDIR\lib\common$PLATSUBDIR"
 
 $Include "$SRCDIR\vpc_scripts\loadaddress.vpc"
 $Include "$SRCDIR\vpc_scripts\source_dll_win32_debug.vpc"
@@ -34,13 +33,13 @@ $Configuration
 	{
 		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
 		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]		
-		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC;_DLL_EXT=$_DLL_EXT"
+		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC;MEMOVERRIDE_MODULE=$PROJECTNAME;_DLL_EXT=$_DLL_EXT"
 		$PreprocessorDefinitions			"$BASE;DLLNAME=$OUTBINNAME"		
 	}
 
 	$Compiler [$WIN32]
 	{
-		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions 2 (/arch:SSE2)"
+		$EnableEnhancedInstructionSet	"Streaming SIMD Extensions (/arch:SSE)"
 	}
 	
 	$Linker
@@ -79,6 +78,12 @@ $Configuration
 							"exit 1" "\n" \
 							":BuildEventOK" "\n" 
 
+		$CommandLine		"$BASE" "\n" \
+							"call $SRCDIR\devtools\bin\vsign.bat -sign $OUTBINDIR\$(TargetFileName)" "\n" [$RETAIL && $PUBLISH]
+
+		$CommandLine		"$BASE" "\n" \
+							"call $SRCDIR\devtools\bin\vsign.bat -signvalve $OUTBINDIR\$(TargetFileName)" "\n" [!$RETAIL && !$PUBLISH && !$SOURCESDK]
+
 		$Description		"Publishing to $OUTBINDIR"
 		$ExcludedFromBuild	"No"
 	}
@@ -100,7 +105,7 @@ $Project
 			}
 		}
 
-		$File	"$SRCDIR\common\debug_dll_check.cpp"	[!$SOURCESDK]	
+		$File	"$SRCDIR\common\debug_dll_check.cpp"
 		{
 			$Configuration
 			{
@@ -116,6 +121,8 @@ $Project
 	{
 		$Implib	"$LIBPUBLIC\tier0"
 		$Lib	"$LIBPUBLIC\tier1"
+		$Lib	"$LIBPUBLIC\interfaces"
 		$Implib	"$LIBPUBLIC\vstdlib"
 	}
 }
+

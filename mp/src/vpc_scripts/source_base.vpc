@@ -12,6 +12,9 @@
 // Staging branch:
 //$Conditional STAGING_ONLY	"1"
 
+// rel/tf_beta branch:
+//$Conditional TF_BETA	"1"
+
 $Configuration "Debug"
 {
 	$Compiler
@@ -19,8 +22,11 @@ $Configuration "Debug"
 		// Pass on appropriate branch define to preprocessor
 		$PreprocessorDefinitions		"VPC"
 		$PreprocessorDefinitions		"$BASE;STAGING_ONLY" [$STAGING_ONLY]
+		$PreprocessorDefinitions		"$BASE;TF_BETA" [$TF_BETA]
 		$PreprocessorDefinitions		"$BASE;RAD_TELEMETRY_DISABLED" [$SOURCESDK]
-		$PreprocessorDefinitions		"$BASE;DISABLE_ETW" [$DISABLE_ETW]
+// Need to revisit the code to make things run with the _RETAIL preprocessor definition
+// This line was added in the previous check-in, but had previously not been defined in this branch
+//		$PreprocessorDefinitions		"$BASE;_RETAIL"		[$RETAIL]
 	}
 }
 
@@ -31,8 +37,10 @@ $Configuration "Release"
 		// Pass on appropriate branch define to preprocessor
 		$PreprocessorDefinitions		"VPC"
 		$PreprocessorDefinitions		"$BASE;STAGING_ONLY" [$STAGING_ONLY]
+		$PreprocessorDefinitions		"$BASE;TF_BETA" [$TF_BETA]
 		$PreprocessorDefinitions		"$BASE;RAD_TELEMETRY_DISABLED" [$SOURCESDK]
-		$PreprocessorDefinitions		"$BASE;_RETAIL"		[$RETAIL]
-		$PreprocessorDefinitions		"$BASE;_CERT"		[$CERT]
+// Need to revisit the code to make things run with the _RETAIL preprocessor definition
+// This line was added in the previous check-in, but had previously not been defined in this branch
+//		$PreprocessorDefinitions		"$BASE;_RETAIL"		[$RETAIL]
 	}
 }

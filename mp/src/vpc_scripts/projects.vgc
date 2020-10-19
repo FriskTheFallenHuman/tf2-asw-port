@@ -1,18 +1,9 @@
-//-----------------------------------------------------------------------------
-//	PROJECTS.VGC
-//
-//	Project Configurations for all Source(TM) Projects
-//-----------------------------------------------------------------------------
-
-/////////////////////////
-// Project definitions //
-/////////////////////////
 $Project "client"
 {
-	"game\client\client_tf.vpc"			[$WINDOWS && $TF]
+	"game\client\client_tf.vpc"	[$TF]
 }
 
 $Project "server"
 {
-	"game\server\server_tf.vpc"			[$WINDOWS && $TF]
+	"game\server\server_tf.vpc"	[$TF]
 }

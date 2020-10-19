@@ -15,8 +15,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory			".\Debug_$GAMENAME_$PLATSUBDIR"
-		$IntermediateDirectory		".\Debug_$GAMENAME_$PLATSUBDIR"
+		$OutputDirectory		".\Debug_$GAMENAME"
+		$IntermediateDirectory	".\Debug_$GAMENAME"
 	}
 }
 
@@ -24,8 +24,8 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory			".\Release_$GAMENAME_$PLATSUBDIR"
-		$IntermediateDirectory		".\Release_$GAMENAME_$PLATSUBDIR"
+		$OutputDirectory		".\Release_$GAMENAME"
+		$IntermediateDirectory	".\Release_$GAMENAME"
 	}
 }
 
@@ -34,7 +34,7 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;.\;$SRCDIR\game\shared;$SRCDIR\utils\common;$SRCDIR\game\shared\econ;$SRCDIR\game\server\NextBot"
-		$PreprocessorDefinitions		"$BASE;_CRT_NO_VA_START_VALIDATION;GAME_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;sprintf=use_Q_snprintf_instead_of_sprintf;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead"
+		$PreprocessorDefinitions		"$BASE;GAME_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;sprintf=use_Q_snprintf_instead_of_sprintf;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead"
 		$PreprocessorDefinitions		"$BASE;fopen=dont_use_fopen"
 		$Create/UsePrecompiledHeader	"Use Precompiled Header (/Yu)"
 		$Create/UsePCHThroughFile		"cbase.h"
@@ -69,7 +69,6 @@ $Project
 		$File	"ai_speechqueue.h"
 		$File	"ambientgeneric.cpp"
 		$File	"ambientgeneric.h"
-		$File	"base_gameinterface.cpp"
 		$File	"beamspotlight.cpp"
 		$File	"$SRCDIR\public\tools\bonelist.cpp"
 		$File	"cbaseprojectile.cpp"
@@ -132,7 +131,8 @@ $Project
 		$File	"vscript_server.h"
 		$File	"vscript_server.nut"
 		$File	"$SRCDIR\game\shared\vscript_shared.cpp"
-		$File	"$SRCDIR\game\shared\vscript_shared.h"	
+		$File	"$SRCDIR\game\shared\vscript_shared.h"
+		
 		$File	"$SRCDIR\game\shared\achievement_saverestore.cpp"
 		$File	"$SRCDIR\game\shared\achievement_saverestore.h"
 		$File	"$SRCDIR\game\shared\achievementmgr.cpp"
@@ -841,6 +841,7 @@ $Project
 			$File	"te_worlddecal.cpp"
 			$File	"$SRCDIR\game\shared\usermessages.cpp"
 		}
+
 	}
 
 	$Folder	"Header Files"

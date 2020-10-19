@@ -74,8 +74,7 @@ $Configuration "Debug"
 		$WholeProgramOptimization
 
 		// Preprocessor
-		$PreprocessorDefinitions			"$BASE;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)"
-		$PreprocessorDefinitions			"$BASE;_HAS_ITERATOR_DEBUGGING=0;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH" [!$WIN64&&!$VS2015]
+		$PreprocessorDefinitions			"$BASE;SUPPRESS_INVALID_PARAMETER_NO_INFO;_HAS_ITERATOR_DEBUGGING=0;WIN32;_WIN32;_DEBUG;DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_ALLOW_RUNTIME_LIBRARY_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_MSC_VER_MISMATCH;%(PreprocessorDefinitions)"
 		$IgnoreStandardIncludePath
 		$GeneratePreprocessedFile
 		$KeepComments
@@ -95,7 +94,6 @@ $Configuration "Debug"
 		$EnableFloatingPointExceptions
 
 		// Language
-		//$LanguageStandard					"Preview - Features from the Latest C++ Working Draft (std:c++latest)"
 		$DisableLanguageExtensions
 		$DefaultCharUnsigned
 		$TreatWCHAR_TAsBuiltInType
@@ -134,7 +132,7 @@ $Configuration "Debug"
 		$OmitDefaultLibraryNames
 		$ErrorReporting						"Prompt Immediately (/errorReport:prompt)"
 
-		$AdditionalOptions					"/Zm750"
+		$AdditionalOptions					"/Zm200"
 	}
 
 	$Linker
@@ -155,7 +153,7 @@ $Configuration "Debug"
 		// Input
 		$AdditionalDependencies
 		$IgnoreAllDefaultLibraries
-		$IgnoreSpecificLibrary				"libc;libcd;libcmt;libcpmt;libcpmt1"
+		$IgnoreSpecificLibrary				"libc;libcd;libcmtd"
 		$ModuleDefinitionFile
 		$AddModuleToAssembly
 		$EmbedManagedResourceFile
@@ -170,7 +168,7 @@ $Configuration "Debug"
 		$AllowIsolation
 
 		// Debugging
-		$GenerateDebugInfo					"Generate Debug Information optimized for faster links (/DEBUG:FASTLINK)"
+		$GenerateDebugInfo					"Yes (/DEBUG)"
 		$GenerateProgramDatabaseFile		"$(IntDir)/$(TargetName).pdb"
 		$StripPrivateSymbols
 		$MapExports

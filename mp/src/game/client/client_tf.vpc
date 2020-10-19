@@ -8,13 +8,14 @@ $Macro SRCDIR		"..\.."
 $Macro GAMENAME 	"tf_asw"
 
 $Include "$SRCDIR\game\client\client_base.vpc"
+$Include "$SRCDIR\game\client\gameui_embedded.vpc"
 
 $Configuration
 {
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;.\hl2;.\tf;.\tf\vgui;$SRCDIR\game\shared\Multiplayer;$SRCDIR\game\shared\tf"
-		$PreprocessorDefinitions		"$BASE;TF_MOD_CLIENT;GAMEUI_EMBEDDED;GAMEUI_EXPORTS"
+		$PreprocessorDefinitions		"$BASE;TF_MOD_CLIENT"
 	}
 }
 

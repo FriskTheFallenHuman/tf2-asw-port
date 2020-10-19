@@ -15,8 +15,8 @@ $Configuration	"Debug"
 {
 	$General
 	{
-		$OutputDirectory			".\Debug_$GAMENAME_$PLATSUBDIR"
-		$IntermediateDirectory		".\Debug_$GAMENAME_$PLATSUBDIR"
+		$OutputDirectory			".\Debug_$GAMENAME"
+		$IntermediateDirectory		".\Debug_$GAMENAME"
 	}
 }
 
@@ -24,8 +24,8 @@ $Configuration	"Release"
 {
 	$General
 	{
-		$OutputDirectory			".\Release_$GAMENAME_$PLATSUBDIR"
-		$IntermediateDirectory		".\Release_$GAMENAME_$PLATSUBDIR"
+		$OutputDirectory			".\Release_$GAMENAME"
+		$IntermediateDirectory		".\Release_$GAMENAME"
 	}
 }
 
@@ -34,7 +34,7 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	".\;$BASE;$SRCDIR\game\shared;.\game_controls"
-		$PreprocessorDefinitions		"$BASE;_CRT_NO_VA_START_VALIDATION;NO_STRING_T;CLIENT_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead" 
+		$PreprocessorDefinitions		"$BASE;NO_STRING_T;CLIENT_DLL;VECTOR;VERSION_SAFE_STEAM_API_INTERFACES;PROTECTED_THINGS_ENABLE;strncpy=use_Q_strncpy_instead;_snprintf=use_Q_snprintf_instead" 
 		$PreprocessorDefinitions		"$BASE;fopen=dont_use_fopen"
 		$Create/UsePrecompiledHeader	"Use Precompiled Header (/Yu)"
 		$Create/UsePCHThroughFile		"cbase.h"
@@ -119,6 +119,7 @@ $Project
 		$File	"vscript_client.nut"
 		$File	"$SRCDIR\game\shared\vscript_shared.cpp"
 		$File	"$SRCDIR\game\shared\vscript_shared.h"
+
 		$File	"hl2\C_Func_Monitor.cpp"
 		$File	"geiger.cpp"
 		$File	"history_resource.cpp"
@@ -306,16 +307,6 @@ $Project
 		$File	"in_main.cpp"
 		$File	"initializer.cpp"
 		$File	"IsNPCProxy.cpp"
-		$File	"../../common/language.cpp"
-		{
-			$Configuration
-			{
-				$Compiler
-				{
-					$Create/UsePrecompiledHeader	"Not Using Precompiled Headers"
-				}
-			}
-		}
 		$File	"lampbeamproxy.cpp"
 		$File	"lamphaloproxy.cpp"
 		$File	"$SRCDIR\game\shared\mapentities_shared.cpp"
@@ -366,6 +357,8 @@ $Project
 		$File	"ragdoll.cpp"
 		$File	"$SRCDIR\game\shared\ragdoll_shared.cpp"
 		$File	"recvproxy.cpp"
+		$File	"basepresence.cpp"			[$WIN32||$POSIX]
+		$File	"basepresence_xbox.cpp"		[$X360]
 		$File	"$SRCDIR\game\shared\rope_helpers.cpp"
 		$File	"$SRCDIR\game\shared\saverestore.cpp"
 		$File	"$SRCDIR\game\shared\sceneentity_shared.cpp"
@@ -570,6 +563,7 @@ $Project
 			$File	"game_controls\vguitextwindow.cpp"
 			$File	"game_controls\IconPanel.cpp"
 		}
+
 	}
 
 	$Folder	"MP3"
@@ -698,6 +692,7 @@ $Project
 		$File	"hud_macros.h"
 		$File	"hud_numericdisplay.h"
 		$File	"hud_pdump.h"
+		$File	"basepresence.h"
 		$File	"hud_vehicle.h"
 		$File	"hudelement.h"
 		$File	"hudtexturehandle.h"
@@ -710,6 +705,7 @@ $Project
 		$File	"idebugoverlaypanel.h"
 		$File	"ifpspanel.h"
 		$File	"ihudlcd.h"
+		$File	"ipresence.h"
 		$File	"iinput.h"
 		$File	"iloadingdisc.h"
 		$File	"imaterialproxydict.h"
@@ -1168,8 +1164,8 @@ $Project
 		$Lib		vgui_controls
 		$Lib		videocfg
 		$Lib		vtf
-		$ImpLib		steam_api
-		$Lib 		"$LIBCOMMON\jpeglib"
+		$Lib		"$LIBCOMMON\jpeglib"
 		$Lib 		"$LIBPUBLIC\vpklib"
+		$ImpLib		steam_api
  	}
 }
