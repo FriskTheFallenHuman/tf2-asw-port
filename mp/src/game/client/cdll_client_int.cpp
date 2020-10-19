@@ -103,16 +103,15 @@
 #include "vscript/ivscript.h"
 #include "activitylist.h"
 #include "eventlist.h"
+
 #ifdef GAMEUI_UISYSTEM2_ENABLED
 #include "gameui.h"
 #endif
-// UI
+
 #ifdef GAMEUI_EMBEDDED
-#if defined( HL2_CLIENT_DLL )
-#include "hl2/gameui/hl2/basemodpanel.h"
+#include "BaseModPanel.h"
 #else
 #error "GAMEUI_EMBEDDED"
-#endif
 #endif
 
 #ifdef DEMOPOLISH_ENABLED
@@ -124,8 +123,6 @@
 #include "../../engine/iblackbox.h"
 #include "c_rumble.h"
 #include "viewpostprocess.h"
-
-
 
 #ifdef INFESTED_PARTICLES
 #include "c_asw_generic_emitter.h"
@@ -1747,16 +1744,10 @@ void ConfigureCurrentSystemLevel()
 	{
 		nGPUMemLevel = 360;
 	}
-	char szModName[32] = "swarm"; // forced to being able to load ASW's config files; thx to Ken for pointing that out [str]
-	/*
-#if defined( SWARM_DLL )
-	char szModName[32] = "swarm";
-#elif defined ( HL2_EPISODIC )
-	char szModName[32] = "ep2";
-#elif defined ( SDK_CLIENT_DLL )
-	char szModName[32] = "sdk";
-#endif
-	*/
+
+	// forced to being able to load ASW's config files; thx to Ken for pointing that out [str]
+	char szModName[32] = "swarm"; 
+
 	UpdateSystemLevel( nCPULevel, nGPULevel, nMemLevel, nGPUMemLevel, VGui_IsSplitScreen(), szModName );
 
 	if ( engine )
@@ -1770,8 +1761,6 @@ void ConfigureCurrentSystemLevel()
 		view->InitFadeData();
 	}
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Purpose: Per level init
