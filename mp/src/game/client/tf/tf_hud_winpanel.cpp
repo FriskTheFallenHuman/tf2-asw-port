@@ -29,12 +29,14 @@
 
 DECLARE_HUDELEMENT_DEPTH( CTFWinPanel, 1 );
 
+#pragma warning(disable:4800) // 'int' : forcing value to bool 'true' or 'false'
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
 CTFWinPanel::CTFWinPanel( const char *pElementName ) : EditablePanel( NULL, "WinPanel" ), CHudElement( pElementName )
 {
-	vgui::Panel *pParent = g_pClientMode->GetViewport();
+	vgui::Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 	m_bShouldBeVisible = false;
 	SetAlpha( 0 );
@@ -287,8 +289,8 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 			{
 				if ( bShow )
 				{
-					pPlayerAvatar->SetShouldDrawFriendIcon( false );
-					pPlayerAvatar->SetPlayer( iPlayerIndex );
+					CBasePlayer *pPlayer = UTIL_PlayerByIndex( iPlayerIndex );
+					pPlayerAvatar->SetPlayer( pPlayer );
 				}
 
 				pPlayerAvatar->SetVisible( bShow );

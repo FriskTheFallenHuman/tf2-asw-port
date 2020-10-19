@@ -10,7 +10,7 @@
 #include <KeyValues.h>
 #include "vgui_video.h"
 #include "tf_vgui_video.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -50,10 +50,10 @@ void CTFVideoPanel::ReleaseVideo()
 	enginesound->NotifyEndMoviePlayback();
 
 	// Destroy any previously allocated video
-	if ( m_VideoMaterial != NULL )
+	if ( m_BIKHandle != BIKHANDLE_INVALID )
 	{
-		g_pVideo->DestroyVideoMaterial( m_VideoMaterial );
-		m_VideoMaterial = NULL;
+		bik->DestroyMaterial( m_BIKHandle );
+		m_BIKHandle = BIKHANDLE_INVALID;
 	}
 }
 

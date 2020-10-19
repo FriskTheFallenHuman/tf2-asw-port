@@ -13,17 +13,16 @@
 
 #include <classmenu.h>
 #include <vgui_controls/EditablePanel.h>
-#include "vgui_controls/KeyRepeat.h"
-#include <filesystem.h>
+#include <FileSystem.h>
 #include <tf_shareddefs.h>
 #include "cbase.h"
 #include "tf_controls.h"
 #include "tf_gamerules.h"
-#include "basemodelpanel.h"
+#include "tf_modelpanel.h"
 #include "imagemouseoverbutton.h"
-#include "IconPanel.h"
+#include "iconpanel.h"
 #include <vgui_controls/CheckButton.h>
-#include "GameEventListener.h"
+#include "gameeventlistener.h"
 #include "c_tf_playerresource.h"
 
 using namespace vgui;
@@ -113,7 +112,6 @@ private:
 
 	ButtonCode_t	m_iClassMenuKey;
 	int				m_iCurrentClassIndex;
-	vgui::CKeyRepeatHandler	m_KeyRepeat;
 
 #ifndef _X360
 	CTFImagePanel *m_ClassCountImages[CLASS_COUNT_IMAGES];
@@ -131,7 +129,7 @@ private:
 	DECLARE_CLASS_SIMPLE( CTFClassMenu_Blue, CTFClassMenu );
 
 public:
-	CTFClassMenu_Blue( IViewPort *pViewPort ) : BaseClass( pViewPort )
+	CTFClassMenu_Blue::CTFClassMenu_Blue( IViewPort *pViewPort ) : BaseClass( pViewPort )
 	{
 		m_pClassButtons[TF_CLASS_SCOUT] = new CImageMouseOverButton<CTFClassInfoPanel>( this, "scout_blue", m_pClassInfoPanel );
 		m_pClassButtons[TF_CLASS_SOLDIER] = new CImageMouseOverButton<CTFClassInfoPanel>( this, "soldier_blue", m_pClassInfoPanel );
@@ -168,9 +166,9 @@ public:
 		if ( bShow )
 		{
 			// make sure the Red class menu isn't open
-			if ( gViewPortInterface )
+			if ( GetViewPortInterface() )
 			{
-				gViewPortInterface->ShowPanel( PANEL_CLASS_RED, false );
+				GetViewPortInterface()->ShowPanel( PANEL_CLASS_RED, false );
 			}
 		}
 
@@ -200,7 +198,7 @@ private:
 	DECLARE_CLASS_SIMPLE( CTFClassMenu_Red, CTFClassMenu );
 
 public:
-	CTFClassMenu_Red( IViewPort *pViewPort ) : BaseClass( pViewPort )
+	CTFClassMenu_Red::CTFClassMenu_Red( IViewPort *pViewPort ) : BaseClass( pViewPort )
 	{
 		m_pClassButtons[TF_CLASS_SCOUT] = new CImageMouseOverButton<CTFClassInfoPanel>( this, "scout_red", m_pClassInfoPanel );
 		m_pClassButtons[TF_CLASS_SOLDIER] = new CImageMouseOverButton<CTFClassInfoPanel>( this, "soldier_red", m_pClassInfoPanel );
@@ -237,9 +235,9 @@ public:
 		if ( bShow )
 		{
 			// make sure the Red class menu isn't open
-			if ( gViewPortInterface )
+			if ( GetViewPortInterface() )
 			{
-				gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, false );
+				GetViewPortInterface()->ShowPanel( PANEL_CLASS_BLUE, false );
 			}
 		}
 

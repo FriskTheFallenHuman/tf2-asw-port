@@ -11,9 +11,9 @@
 #include "hud_numericdisplay.h"
 #include "iclientmode.h"
 #include "c_tf_player.h"
-#include "VGuiMatSurface/IMatSystemSurface.h"
-#include "materialsystem/imaterial.h"
-#include "materialsystem/imesh.h"
+#include "vguimatsurface/IMatSystemSurface.h"
+#include "materialsystem/IMaterial.h"
+#include "materialsystem/IMesh.h"
 #include "materialsystem/imaterialvar.h"
 
 #include <vgui/IScheme.h>
@@ -65,7 +65,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CHudScopeCharge::CHudScopeCharge( const char *pElementName ) : CHudElement(pElementName), BaseClass(NULL, "HudScopeCharge")
 {
-	vgui::Panel *pParent = g_pClientMode->GetViewport();
+	vgui::Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	SetHiddenBits( HIDEHUD_PLAYERDEAD );
@@ -159,7 +159,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CHudScope::CHudScope( const char *pElementName ) : CHudElement(pElementName), BaseClass(NULL, "HudScope")
 {
-	vgui::Panel *pParent = g_pClientMode->GetViewport();
+	vgui::Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 	
 	SetHiddenBits( HIDEHUD_PLAYERDEAD );

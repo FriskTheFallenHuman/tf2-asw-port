@@ -13,13 +13,13 @@
 #include <KeyValues.h>
 #include <vgui_controls/AnimationController.h>
 #include <vgui/ISurface.h>
-#include "VGuiMatSurface/IMatSystemSurface.h"
-#include "materialsystem/imaterial.h"
-#include "materialsystem/imesh.h"
+#include "vguimatsurface/IMatSystemSurface.h"
+#include "materialsystem/IMaterial.h"
+#include "materialsystem/IMesh.h"
 #include "materialsystem/imaterialvar.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "hudelement.h"
-#include "clienteffectprecachesystem.h"
+#include "ClientEffectPrecacheSystem.h"
 
 using namespace vgui;
 
@@ -90,7 +90,7 @@ DECLARE_HUD_MESSAGE( CHudDamageIndicator, Damage );
 CHudDamageIndicator::CHudDamageIndicator( const char *pElementName ) :
 	CHudElement( pElementName ), BaseClass(NULL, "HudDamageIndicator")
 {
-	vgui::Panel *pParent = g_pClientMode->GetViewport();
+	vgui::Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	SetHiddenBits( HIDEHUD_HEALTH );
@@ -150,8 +150,8 @@ bool CHudDamageIndicator::ShouldDraw( void )
 void CHudDamageIndicator::GetDamagePosition( const Vector &vecDelta, float flRadius, float *xpos, float *ypos, float *flRotation )
 {
 	// Player Data
-	Vector playerPosition = MainViewOrigin();
-	QAngle playerAngles = MainViewAngles();
+	Vector playerPosition = MainViewOrigin(0);
+	QAngle playerAngles = MainViewAngles(0);
 
 	Vector forward, right, up(0,0,1);
 	AngleVectors (playerAngles, &forward, NULL, NULL );
@@ -294,10 +294,10 @@ void CHudDamageIndicator::MsgFunc_Damage( bf_read &msg )
 
 	if ( vecOrigin == vec3_origin )
 	{
-		vecOrigin = MainViewOrigin();
+		vecOrigin = MainViewOrigin(0);
 	}
 
-	damage.vecDelta = (vecOrigin - MainViewOrigin());
+	damage.vecDelta = (vecOrigin - MainViewOrigin(0));
 	VectorNormalize( damage.vecDelta );
 
 	// Add some noise

@@ -13,7 +13,7 @@
 #include "ienginevgui.h"
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/ProgressBar.h>
 
@@ -79,7 +79,7 @@ DECLARE_HUDELEMENT( CHudAccountPanel );
 //-----------------------------------------------------------------------------
 CHudAccountPanel::CHudAccountPanel( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "HudAccount" )
 {
-	Panel *pParent = g_pClientMode->GetViewport();
+	Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS );

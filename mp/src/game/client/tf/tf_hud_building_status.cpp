@@ -12,10 +12,10 @@
 #include "ienginevgui.h"
 #include "vgui/ILocalize.h"
 #include "vgui/ISurface.h"
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include <vgui_controls/ProgressBar.h>
 #include <vgui_controls/AnimationController.h>
-#include "game_controls/IconPanel.h"
+#include "game_controls/iconpanel.h"
 #include "teamplay_round_timer.h"
 
 #include "tf_hud_building_status.h"
@@ -433,7 +433,7 @@ CBuildingStatusAlertTray::CBuildingStatusAlertTray(Panel *parent, const char *pa
 //-----------------------------------------------------------------------------
 void CBuildingStatusAlertTray::ApplySettings( KeyValues *inResourceData )
 {
-	m_pAlertPanelHudTexture = gHUD.GetIcon( inResourceData->GetString( "icon", "" ) );
+	m_pAlertPanelHudTexture = HudIcons().GetIcon( inResourceData->GetString( "icon", "" ) );
 
 	if ( m_pAlertPanelHudTexture )
 	{
@@ -542,7 +542,7 @@ void CBuildingStatusAlertTray::ShowTray( void )
 	if ( m_bIsTrayOut == false )
 	{
 		m_flAlertDeployedPercent = 0.0;
-		g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( this, "deployed", 1.0, 0.0, 0.3, AnimationController::INTERPOLATOR_LINEAR );
+		GetClientMode()->GetViewportAnimationController()->RunAnimationCommand( this, "deployed", 1.0, 0.0, 0.3, AnimationController::INTERPOLATOR_LINEAR );
 
 		m_bIsTrayOut = true;
 	}
@@ -553,7 +553,7 @@ void CBuildingStatusAlertTray::HideTray( void )
 	if ( m_bIsTrayOut == true )
 	{
 		m_flAlertDeployedPercent = 1.0;
-		g_pClientMode->GetViewportAnimationController()->RunAnimationCommand( this, "deployed", 0.0, 0.0, 0.3, AnimationController::INTERPOLATOR_LINEAR );
+		GetClientMode()->GetViewportAnimationController()->RunAnimationCommand( this, "deployed", 0.0, 0.0, 0.3, AnimationController::INTERPOLATOR_LINEAR );
 
 		m_bIsTrayOut = false;
 	}
@@ -973,7 +973,7 @@ static bool BuildingOrderLessFunc( const BUILDINGSTATUSITEM_PTR &left, const BUI
 CHudBuildingStatusContainer::CHudBuildingStatusContainer( const char *pElementName ) :
 	CHudElement( pElementName ), BaseClass( NULL, pElementName )
 {
-	vgui::Panel *pParent = g_pClientMode->GetViewport();
+	vgui::Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS );

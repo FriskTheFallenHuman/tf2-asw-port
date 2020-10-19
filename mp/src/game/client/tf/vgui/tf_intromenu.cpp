@@ -8,9 +8,9 @@
 #include "cbase.h"
 
 #include <KeyValues.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include <vgui/ISurface.h>
-#include <filesystem.h>
+#include <FileSystem.h>
 #include <vgui_controls/AnimationController.h>
 #include "iclientmode.h"
 #include "clientmode_shared.h"
@@ -18,9 +18,7 @@
 #include "tf_shareddefs.h"
 #include "tf_controls.h"
 #include "tf_gamerules.h"
-#ifdef _WIN32
 #include "winerror.h"
-#endif
 #include "ixboxsystem.h"
 #include "intromenu.h"
 #include "tf_intromenu.h"
@@ -255,7 +253,7 @@ void CTFIntroMenu::UpdateCaptions( void )
 			if ( ( pCaption->m_flCaptionStart >= 0 ) && ( pCaption->m_flCaptionStart + pCaption->m_flDisplayTime < gpGlobals->curtime ) )
 			{
 				// fade out the caption
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "VideoCaptionFadeOut" );
+				GetClientMode()->GetViewportAnimationController()->StartAnimationSequence( "VideoCaptionFadeOut" );
 
 				// move to the next caption
 				m_iCurrentCaption++;
@@ -276,7 +274,7 @@ void CTFIntroMenu::UpdateCaptions( void )
 					pCaption->m_flCaptionStart = gpGlobals->curtime;
 
 					// fade in the next caption
-					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "VideoCaptionFadeIn" );
+					GetClientMode()->GetViewportAnimationController()->StartAnimationSequence( "VideoCaptionFadeIn" );
 				}
 			}
 		}

@@ -12,7 +12,6 @@
 #include "tf_gamerules.h"
 #include "c_tf_team.h"
 #include "c_tf_playerresource.h"
-#include "engine/imatchmaking.h"
 #include "ixboxsystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -29,14 +28,14 @@ struct s_MapName
 
 // This array must match the define order in hl2orange.spa.h
 static s_MapName s_Scenarios[] = {
-	{	"ctf_2fort",	"2Fort",		},
-	{	"cp_dustbowl",	"Dustbowl",		},
-	{	"cp_granary",	"Granary",		},
-	{	"cp_well",		"Well",			},
-	{	"cp_gravelpit", "Gravel Pit",	},
-	{	"tc_hydro",		"Hydro",		},
-	{	"cloak",		"Cloak (CTF)",	},
-	{	"cp_cloak",		"Cloak (CP)",	},
+								"ctf_2fort",	"2Fort",
+								"cp_dustbowl",	"Dustbowl",
+								"cp_granary",	"Granary",
+								"cp_well",		"Well",
+								"cp_gravelpit", "Gravel Pit",
+								"tc_hydro",		"Hydro",
+								"cloak",		"Cloak (CTF)",
+								"cp_cloak",		"Cloak (CP)",
 };
 
 struct s_PresenceTranslation
@@ -47,42 +46,42 @@ struct s_PresenceTranslation
 
 // Only presence IDs can be searched by id number, because they're guaranteed to be unique
 static s_PresenceTranslation s_PresenceIds[] = {
-	{	CONTEXT_SCENARIO,				 			"CONTEXT_SCENARIO",				},
-	{	PROPERTY_CAPS_OWNED,			 			"PROPERTY_CAPS_OWNED",			},
-	{	PROPERTY_CAPS_TOTAL,			 			"PROPERTY_CAPS_TOTAL",			},
-	{	PROPERTY_FLAG_CAPTURE_LIMIT,	 			"PROPERTY_FLAG_CAPTURE_LIMIT",	},
-	{	PROPERTY_NUMBER_OF_ROUNDS,		 			"PROPERTY_NUMBER_OF_ROUNDS",	},
-	{	PROPERTY_WIN_LIMIT,							"PROPERTY_WIN_LIMIT",			},
-	{	PROPERTY_GAME_SIZE,				 			"PROPERTY_GAME_SIZE",			},
-	{	PROPERTY_AUTOBALANCE,			 			"PROPERTY_AUTOBALANCE",			},
-	{	PROPERTY_PRIVATE_SLOTS,			 			"PROPERTY_PRIVATE_SLOTS",		},
-	{	PROPERTY_MAX_GAME_TIME,			 			"PROPERTY_MAX_GAME_TIME",		},
-	{	PROPERTY_NUMBER_OF_TEAMS,					"PROPERTY_NUMBER_OF_TEAMS",		},
-	{	PROPERTY_TEAM,								"PROPERTY_TEAM",				},
+			CONTEXT_SCENARIO,				 			"CONTEXT_SCENARIO",							
+			PROPERTY_CAPS_OWNED,			 			"PROPERTY_CAPS_OWNED",						
+			PROPERTY_CAPS_TOTAL,			 			"PROPERTY_CAPS_TOTAL",						
+			PROPERTY_FLAG_CAPTURE_LIMIT,	 			"PROPERTY_FLAG_CAPTURE_LIMIT",				
+			PROPERTY_NUMBER_OF_ROUNDS,		 			"PROPERTY_NUMBER_OF_ROUNDS",				
+			PROPERTY_WIN_LIMIT,							"PROPERTY_WIN_LIMIT",				
+			PROPERTY_GAME_SIZE,				 			"PROPERTY_GAME_SIZE",						
+			PROPERTY_AUTOBALANCE,			 			"PROPERTY_AUTOBALANCE",						
+			PROPERTY_PRIVATE_SLOTS,			 			"PROPERTY_PRIVATE_SLOTS",					
+			PROPERTY_MAX_GAME_TIME,			 			"PROPERTY_MAX_GAME_TIME",
+			PROPERTY_NUMBER_OF_TEAMS,					"PROPERTY_NUMBER_OF_TEAMS",
+			PROPERTY_TEAM,								"PROPERTY_TEAM",
 #if defined( _X360 )
-	{	X_CONTEXT_GAME_MODE,					  	"CONTEXT_GAME_MODE",			},
-	{	X_CONTEXT_GAME_TYPE,					  	"CONTEXT_GAME_TYPE",			},
+			X_CONTEXT_GAME_MODE,					  	"CONTEXT_GAME_MODE",						
+			X_CONTEXT_GAME_TYPE,					  	"CONTEXT_GAME_TYPE",						
 #endif
 };
 
 // Presence values cannot be searched by id number, because they are not unique
 static s_PresenceTranslation s_PresenceValues[] = {
-	{	SESSION_MATCH_QUERY_PLAYER_MATCH,			"SESSION_MATCH_QUERY_PLAYER_MATCH",			},
-	{	CONTEXT_GAME_MODE_MULTIPLAYER,	 			"CONTEXT_GAME_MODE_MULTIPLAYER",			},
-	{	CONTEXT_SCENARIO_CTF_2FORT,		 			"CONTEXT_SCENARIO_CTF_2FORT",				},
-	{	CONTEXT_SCENARIO_CP_DUSTBOWL,	 			"CONTEXT_SCENARIO_CP_DUSTBOWL",				},
-	{	CONTEXT_SCENARIO_CP_GRANARY,	 			"CONTEXT_SCENARIO_CP_GRANARY",				},
-	{	CONTEXT_SCENARIO_CP_WELL,		 			"CONTEXT_SCENARIO_CP_WELL",					},
-	{	CONTEXT_SCENARIO_CP_GRAVELPIT,	 			"CONTEXT_SCENARIO_CP_GRAVELPIT",			},
-	{	CONTEXT_SCENARIO_TC_HYDRO,		 			"CONTEXT_SCENARIO_TC_HYDRO",				},
-	{	CONTEXT_SCENARIO_CTF_CLOAK,		 			"CONTEXT_SCENARIO_CTF_CLOAK",				},
-	{	CONTEXT_SCENARIO_CP_CLOAK,		 			"CONTEXT_SCENARIO_CP_CLOAK",				},
+	SESSION_MATCH_QUERY_PLAYER_MATCH,			"SESSION_MATCH_QUERY_PLAYER_MATCH",			
+	CONTEXT_GAME_MODE_MULTIPLAYER,	 			"CONTEXT_GAME_MODE_MULTIPLAYER",			
+	CONTEXT_SCENARIO_CTF_2FORT,		 			"CONTEXT_SCENARIO_CTF_2FORT",				
+	CONTEXT_SCENARIO_CP_DUSTBOWL,	 			"CONTEXT_SCENARIO_CP_DUSTBOWL",				
+	CONTEXT_SCENARIO_CP_GRANARY,	 			"CONTEXT_SCENARIO_CP_GRANARY",				
+	CONTEXT_SCENARIO_CP_WELL,		 			"CONTEXT_SCENARIO_CP_WELL",					
+	CONTEXT_SCENARIO_CP_GRAVELPIT,	 			"CONTEXT_SCENARIO_CP_GRAVELPIT",			
+	CONTEXT_SCENARIO_TC_HYDRO,		 			"CONTEXT_SCENARIO_TC_HYDRO",				
+	CONTEXT_SCENARIO_CTF_CLOAK,		 			"CONTEXT_SCENARIO_CTF_CLOAK",				
+	CONTEXT_SCENARIO_CP_CLOAK,		 			"CONTEXT_SCENARIO_CP_CLOAK",				
 #if defined( _X360 )
-	{	XSESSION_CREATE_LIVE_MULTIPLAYER_STANDARD,	"SESSION_CREATE_LIVE_MULTIPLAYER_STANDARD",	},
-	{	XSESSION_CREATE_LIVE_MULTIPLAYER_RANKED,  	"SESSION_CREATE_LIVE_MULTIPLAYER_RANKED",	},
-	{	XSESSION_CREATE_SYSTEMLINK,				  	"SESSION_CREATE_SYSTEMLINK",				},
-	{	X_CONTEXT_GAME_TYPE_STANDARD,			  	"CONTEXT_GAME_TYPE_STANDARD",				},
-	{	X_CONTEXT_GAME_TYPE_RANKED,				  	"CONTEXT_GAME_TYPE_RANKED",					},
+	XSESSION_CREATE_LIVE_MULTIPLAYER_STANDARD,	"SESSION_CREATE_LIVE_MULTIPLAYER_STANDARD",	
+	XSESSION_CREATE_LIVE_MULTIPLAYER_RANKED,  	"SESSION_CREATE_LIVE_MULTIPLAYER_RANKED",	
+	XSESSION_CREATE_SYSTEMLINK,				  	"SESSION_CREATE_SYSTEMLINK",				
+	X_CONTEXT_GAME_TYPE_STANDARD,			  	"CONTEXT_GAME_TYPE_STANDARD",					
+	X_CONTEXT_GAME_TYPE_RANKED,				  	"CONTEXT_GAME_TYPE_RANKED",						
 #endif
 };
 
@@ -131,17 +130,17 @@ void CTF_Presence::GetPropertyDisplayString( uint id, uint value, char *pOutput,
 	case PROPERTY_FLAG_CAPTURE_LIMIT:
 	case PROPERTY_NUMBER_OF_ROUNDS:
 	case PROPERTY_WIN_LIMIT:
-		Q_snprintf( pOutput, nBytes, "%d", value );
+		Q_snprintf( pOutput, nBytes, "%d", value ); 
 		return;
 
 	case PROPERTY_MAX_GAME_TIME:
-		if ( value >= NO_TIME_LIMIT )
+		/*if ( value >= NO_TIME_LIMIT )
 		{
 			Q_strncpy( pOutput, "#TF_MaxTimeNoLimit", nBytes );
 		}
-		else
+		else*/
 		{
-			Q_snprintf( pOutput, nBytes, "%d:00", value );
+			Q_snprintf( pOutput, nBytes, "%d:00", value ); 
 		}
 		return;
 
@@ -219,7 +218,7 @@ void CTF_Presence::LevelInitPreEntity( void )
 	const char *pMapName = MapName();
 	if ( pMapName )
 	{
-		UserSetContext( XBX_GetPrimaryUserId(), CONTEXT_SCENARIO, GetMapID( pMapName ), true );
+		UserSetContext( XBX_GetActiveUserId(), CONTEXT_SCENARIO, GetMapID( pMapName ), true );
 	}
 }
 
@@ -295,12 +294,12 @@ void CTF_Presence::SetupGameProperties( CUtlVector< XUSER_CONTEXT > &contexts, C
 
 		case PROPERTY_AUTOBALANCE:
 			Q_snprintf( buffer, sizeof( buffer ), "mp_autoteambalance %d", prop.value.nData );
-			engine->ClientCmd( buffer );
+			engine->ClientCmd( buffer );		
 			break;
 
 		case PROPERTY_MAX_GAME_TIME:
 			Q_snprintf( buffer, sizeof( buffer ), "mp_timelimit %d", prop.value.nData );
-			engine->ClientCmd( buffer );
+			engine->ClientCmd( buffer );		
 			break;
 
 		}
@@ -342,18 +341,18 @@ void CTF_Presence::FireGameEvent( IGameEvent *event )
 		int nPoints = ObjectiveResource()->GetNumControlPoints();
 		int nOwned = ObjectiveResource()->GetNumControlPointsOwned();
 
-		UserSetProperty( XBX_GetPrimaryUserId(), PROPERTY_CAPS_TOTAL, sizeof(int), &nPoints, true );
-		UserSetProperty( XBX_GetPrimaryUserId(), PROPERTY_CAPS_OWNED, sizeof(int), &nOwned, true );
+		UserSetProperty( XBX_GetActiveUserId(), PROPERTY_CAPS_TOTAL, sizeof(int), &nPoints, true );
+		UserSetProperty( XBX_GetActiveUserId(), PROPERTY_CAPS_OWNED, sizeof(int), &nOwned, true );
 	}
 	else if ( !Q_stricmp( "controlpoint_updateowner", eventname ) )
 	{
 		int nOwned = ObjectiveResource()->GetNumControlPointsOwned();
-		UserSetProperty( XBX_GetPrimaryUserId(), PROPERTY_CAPS_OWNED, sizeof(int), &nOwned, true );
+		UserSetProperty( XBX_GetActiveUserId(), PROPERTY_CAPS_OWNED, sizeof(int), &nOwned, true );
 	}
 	else if ( !Q_stricmp( "ctf_flag_captured", eventname ) )
 	{
 		C_TFTeam *pLocalTeam = GetGlobalTFTeam( GetLocalPlayerTeam() );
-
+		
 		if ( pLocalTeam )
 		{
 			int iOtherScore = 0;
@@ -393,8 +392,8 @@ void CTF_Presence::FireGameEvent( IGameEvent *event )
 				}
 			}
 
-			UserSetProperty( XBX_GetPrimaryUserId(), PROPERTY_PLAYER_TEAM_SCORE, sizeof(int), &iTeamScore, true );
-			UserSetProperty( XBX_GetPrimaryUserId(), PROPERTY_OPPONENT_TEAM_SCORE, sizeof(int), &iOtherScore, true );
+			UserSetProperty( XBX_GetActiveUserId(), PROPERTY_PLAYER_TEAM_SCORE, sizeof(int), &iTeamScore, true );
+			UserSetProperty( XBX_GetActiveUserId(), PROPERTY_OPPONENT_TEAM_SCORE, sizeof(int), &iOtherScore, true );
 #if defined ( _X360 )
 			if ( !m_bIsInCommentary )
 			{
@@ -411,8 +410,8 @@ void CTF_Presence::FireGameEvent( IGameEvent *event )
 					UserSetContext( XBX_GetPrimaryUserId(), X_CONTEXT_PRESENCE, CONTEXT_PRESENCE_TF_CTF_TIED, true );
 				}
 			}
-#endif
-		}
+#endif 
+		}	
 	}
 	else if ( !Q_stricmp( "playing_commentary", eventname ) )
 	{
@@ -420,7 +419,7 @@ void CTF_Presence::FireGameEvent( IGameEvent *event )
 #if defined ( _X360 )
 		UserSetContext( XBX_GetPrimaryUserId(), X_CONTEXT_PRESENCE, CONTEXT_PRESENCE_COMMENTARY, true );
 		UserSetContext( XBX_GetPrimaryUserId(), X_CONTEXT_GAME_MODE, CONTEXT_GAME_MODE_SINGLEPLAYER, true );
-#endif
+#endif 
 	}
 }
 

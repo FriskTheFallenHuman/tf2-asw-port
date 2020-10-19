@@ -49,7 +49,7 @@ void TF_ThrowCigaretteCallback( const CEffectData &data )
 	if ( pTemp == NULL )
 		return;
 
-	pTemp->m_nSkin = ( iTeam == TF_TEAM_RED ) ? 0 : 1;
+	pTemp->SetSkin( ( iTeam == TF_TEAM_RED ) ? 0 : 1 );
 
 	pTemp->m_vecTempEntAngVelocity[0] = random->RandomFloat(-512,511);
 	pTemp->m_vecTempEntAngVelocity[1] = random->RandomFloat(-255,255);
@@ -73,4 +73,4 @@ void TF_ThrowCigaretteCallback( const CEffectData &data )
 	pTemp->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
 }
 
-DECLARE_CLIENT_EFFECT( "TF_ThrowCigarette", TF_ThrowCigaretteCallback );
+DECLARE_CLIENT_EFFECT( TF_ThrowCigarette, TF_ThrowCigaretteCallback );

@@ -5,15 +5,15 @@
 //=============================================================================//
 
 #include "cbase.h"
-#include "clienteffectprecachesystem.h"
-#include "fx_sparks.h"
+#include "ClientEffectPrecacheSystem.h"
+#include "FX_Sparks.h"
 #include "iefx.h"
 #include "c_te_effect_dispatch.h"
 #include "particles_ez.h"
 #include "decals.h"
 #include "engine/IEngineSound.h"
 #include "fx_quad.h"
-#include "engine/ivdebugoverlay.h"
+#include "engine/IVDebugOverlay.h"
 #include "shareddefs.h"
 #include "fx_blood.h"
 #include "view.h"
@@ -54,7 +54,7 @@ void TFBloodSprayCallback( Vector vecOrigin, Vector vecNormal, ClientEntityHandl
 
 	// Now throw out a spray away from the view
 	// Get the distance to the view
-	float flDistance = (vecOrigin - MainViewOrigin()).Length();
+	float flDistance = (vecOrigin - MainViewOrigin(0)).Length();
 	float flLODDistance = 0.25 * (flDistance / 512);
 
 	Vector right, up;
@@ -71,7 +71,7 @@ void TFBloodSprayCallback( Vector vecOrigin, Vector vecNormal, ClientEntityHandl
 
 	// If the normal's too close to being along the view, push it out
 	Vector vecForward, vecRight;
-	AngleVectors( MainViewAngles(), &vecForward, &vecRight, NULL );
+	AngleVectors( MainViewAngles(0), &vecForward, &vecRight, NULL );
 	float flDot = DotProduct( vecNormal, vecForward );
 	if ( fabs(flDot) > 0.5 )
 	{

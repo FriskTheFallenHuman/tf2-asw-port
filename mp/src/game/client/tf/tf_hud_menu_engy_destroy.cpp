@@ -13,7 +13,7 @@
 #include "ienginevgui.h"
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include "c_baseobject.h"
 
 #include "tf_hud_menu_engy_destroy.h"
@@ -37,7 +37,7 @@ DECLARE_HUDELEMENT_DEPTH( CHudMenuEngyDestroy, 40 );	// in front of engy buildin
 //-----------------------------------------------------------------------------
 CHudMenuEngyDestroy::CHudMenuEngyDestroy( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "HudMenuEngyDestroy" )
 {
-	Panel *pParent = g_pClientMode->GetViewport();
+	Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS );

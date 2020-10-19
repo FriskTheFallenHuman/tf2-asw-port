@@ -13,7 +13,7 @@
 #include "ienginevgui.h"
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include <vgui_controls/EditablePanel.h>
 //#include <vgui_controls/ProgressBar.h>
 
@@ -48,7 +48,7 @@ DECLARE_HUDELEMENT( CHudDemomanPipes );
 //-----------------------------------------------------------------------------
 CHudDemomanPipes::CHudDemomanPipes( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "HudDemomanPipes" )
 {
-	Panel *pParent = g_pClientMode->GetViewport();
+	Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	m_pPipesPresent = new EditablePanel( this, "PipesPresentPanel" );

@@ -11,7 +11,7 @@
 #include "iclientvehicle.h"
 #include "ivieweffects.h"
 #include "input.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "fx.h"
 #include "c_basetempentity.h"
 #include "hud_macros.h"
@@ -27,7 +27,7 @@
 #include "tf_weaponbase.h"
 #include "c_tf_playerresource.h"
 #include "toolframework/itoolframework.h"
-#include "tier1/KeyValues.h"
+#include "tier1/keyvalues.h"
 #include "tier0/vprof.h"
 #include "prediction.h"
 #include "effect_dispatch_data.h"
@@ -37,10 +37,11 @@
 #include "view_scene.h"
 #include "c_baseobject.h"
 #include "toolframework_client.h"
+#include "materialsystem/IMaterialVar.h"
 #include "soundenvelope.h"
 #include "voice_status.h"
-#include "clienteffectprecachesystem.h"
-#include "functionproxy.h"
+#include "ClientEffectPrecacheSystem.h"
+#include "FunctionProxy.h"
 #include "toolframework_client.h"
 #include "choreoevent.h"
 #include "vguicenterprint.h"
@@ -54,9 +55,9 @@
 #include "c_team.h"
 #include "collisionutils.h"
 // for spy material proxy
-#include "proxyentity.h"
-#include "materialsystem/imaterial.h"
-#include "materialsystem/imaterialvar.h"
+#include "ProxyEntity.h"
+#include "materialsystem/IMaterial.h"
+#include "materialsystem/IMaterialVar.h"
 #include "c_tf_team.h"
 
 #if defined( CTFPlayer )
@@ -65,8 +66,6 @@
 
 #include "materialsystem/imesh.h"		//for materials->FindMaterial
 #include "iviewrender.h"				//for view->
-
-#include "cam_thirdperson.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -172,7 +171,7 @@ public:
 
 	IRagdoll* GetIRagdoll() const;
 
-	void ImpactTrace( trace_t *pTrace, int iDamageType, const char *pCustomImpactName );
+	void ImpactTrace( trace_t *pTrace, int iDamageType, char *pCustomImpactName );
 
 	void ClientThink( void );
 	void StartFadeOut( float fDelay );
@@ -301,7 +300,7 @@ void C_TFRagdoll::SetupWeights( const matrix3x4_t *pBoneToWorld, int nFlexWeight
 //			iDamageType - 
 //			*pCustomImpactName - 
 //-----------------------------------------------------------------------------
-void C_TFRagdoll::ImpactTrace(trace_t *pTrace, int iDamageType, const char *pCustomImpactName)
+void C_TFRagdoll::ImpactTrace( trace_t *pTrace, int iDamageType, char *pCustomImpactName )
 {
 	VPROF( "C_TFRagdoll::ImpactTrace" );
 	IPhysicsObject *pPhysicsObject = VPhysicsGetObject();
@@ -380,7 +379,7 @@ void C_TFRagdoll::CreateTFRagdoll()
 			Interp_Copy( pPlayer );
 
 			SetAbsAngles( pPlayer->GetRenderAngles() );
-			GetRotationInterpolator().Reset();
+			GetRotationInterpolator().Reset( gpGlobals->curtime );
 
 			m_flAnimTime = pPlayer->m_flAnimTime;
 			SetSequence( pPlayer->GetSequence() );
@@ -423,11 +422,11 @@ void C_TFRagdoll::CreateTFRagdoll()
 	if ( cl_ragdoll_physics_enable.GetBool() )
 	{
 		// Make us a ragdoll..
-		m_nRenderFX = kRenderFxRagdoll;
+		m_bClientSideRagdoll = true;
 
-		matrix3x4_t boneDelta0[MAXSTUDIOBONES];
-		matrix3x4_t boneDelta1[MAXSTUDIOBONES];
-		matrix3x4_t currentBones[MAXSTUDIOBONES];
+		matrix3x4a_t boneDelta0[MAXSTUDIOBONES];
+		matrix3x4a_t boneDelta1[MAXSTUDIOBONES];
+		matrix3x4a_t currentBones[MAXSTUDIOBONES];
 		const float boneDt = 0.05f;
 
 		// We have to make sure that we're initting this client ragdoll off of the same model.
@@ -459,10 +458,6 @@ void C_TFRagdoll::CreateTFRagdoll()
 
 		InitAsClientRagdoll( boneDelta0, boneDelta1, currentBones, boneDt );
 	}
-	else
-	{
-		ClientLeafSystem()->SetRenderGroup( GetRenderHandle(), RENDER_GROUP_TRANSLUCENT_ENTITY );
-	}		
 
 	if ( m_bBurning )
 	{
@@ -562,7 +557,7 @@ void C_TFRagdoll::OnDataChanged( DataUpdateType_t type )
 		if ( !cl_ragdoll_physics_enable.GetBool() )
 		{
 			// Don't let it set us back to a ragdoll with data from the server.
-			m_nRenderFX = kRenderFxNone;
+			m_bClientSideRagdoll = false;
 		}
 	}
 }
@@ -607,13 +602,13 @@ void C_TFRagdoll::ClientThink( void )
 
 	if ( m_bFadingOut == true )
 	{
-		int iAlpha = GetRenderColor().a;
+		int iAlpha = GetRenderAlpha();
 		int iFadeSpeed = 600.0f;
 
 		iAlpha = max( iAlpha - ( iFadeSpeed * gpGlobals->frametime ), 0 );
 
 		SetRenderMode( kRenderTransAlpha );
-		SetRenderColorA( iAlpha );
+		SetRenderAlpha( iAlpha );
 
 		if ( iAlpha == 0 )
 		{
@@ -818,10 +813,10 @@ public:
 			}
 		}
 
-		if ( ToolsEnabled() )
+		/*if ( ToolsEnabled() )
 		{
 			ToolFramework_RecordMaterialParams( GetMaterial() );
-		}
+		}*/
 	}
 };
 
@@ -891,10 +886,10 @@ public:
 
 		m_pResult->SetFloatValue( flResult );
 
-		if ( ToolsEnabled() )
+		/*if ( ToolsEnabled() )
 		{
 			ToolFramework_RecordMaterialParams( GetMaterial() );
-		}
+		}*/
 	}
 };
 
@@ -1219,8 +1214,6 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 		}
 	}
 
-	UpdateVisibility();
-
 	// Check for full health and remove decals.
 	if ( ( m_iHealth > m_iOldHealth && m_iHealth >= GetMaxHealth() ) || m_Shared.InCond( TF_COND_INVULNERABLE ) )
 	{
@@ -1310,7 +1303,8 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 			{
 				gameeventmanager->FireEventClientSide( event );
 			}
-			if ( IsX360() )
+
+			/*if ( IsX360() )
 			{
 				const char *pTeam = NULL;
 				switch( GetTeamNumber() )
@@ -1332,7 +1326,7 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 				{
 					engine->ChangeTeam( pTeam );
 				}
-			}
+			}*/
 		}
 
 		if ( !IsPlayerClass(m_iOldClass) )
@@ -1549,7 +1543,7 @@ void C_TFPlayer::ResetFlexWeights( CStudioHdr *pStudioHdr )
 	}
 
 	// Reset the prediction interpolation values.
-	m_iv_flexWeight.Reset();
+	m_iv_flexWeight.Reset( gpGlobals->curtime );
 }
 
 //-----------------------------------------------------------------------------
@@ -1618,7 +1612,7 @@ void C_TFPlayer::UpdatePartyHat( void )
 			{
 				iVisibleTeam = m_Shared.GetDisguiseTeam();
 			}
-			m_hPartyHat->m_nSkin = iVisibleTeam - 2;
+			m_hPartyHat->SetSkin( iVisibleTeam - 2 );
 		}
 	}
 }
@@ -1715,12 +1709,8 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	m_TauntCameraData.m_vecHullMax.Init( 9.0f, 9.0f, 9.0f );
 
 	QAngle vecCameraOffset( tf_tauntcam_pitch.GetFloat(), tf_tauntcam_yaw.GetFloat(), tf_tauntcam_dist.GetFloat() );
-
-	g_ThirdPersonManager.SetDesiredCameraOffset( Vector( tf_tauntcam_dist.GetFloat(), 0.0f, 0.0f ) );
-	g_ThirdPersonManager.SetOverridingThirdPerson( true );
 	::input->CAM_ToThirdPerson();
 	ThirdPersonSwitch( true );
-
 	::input->CAM_SetCameraThirdData( &m_TauntCameraData, vecCameraOffset );
 
 	if ( m_hItem )
@@ -1737,13 +1727,11 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	if ( !IsLocalPlayer() )
 		return;	
 
-	Vector vecOffset = g_ThirdPersonManager.GetCameraOffsetAngles();
-
+	Vector vecOffset;
+	::input->CAM_GetCameraOffset( vecOffset );
 	tf_tauntcam_pitch.SetValue( vecOffset[PITCH] - m_angTauntPredViewAngles[PITCH] );
 	tf_tauntcam_yaw.SetValue( vecOffset[YAW] - m_angTauntPredViewAngles[YAW] );
 
-	g_ThirdPersonManager.SetDesiredCameraOffset( vec3_origin );
-	g_ThirdPersonManager.SetOverridingThirdPerson( false );
 	::input->CAM_ToFirstPerson();
 	ThirdPersonSwitch( false );
 	::input->CAM_SetCameraThirdData( NULL, vec3_angle );
@@ -2358,10 +2346,10 @@ float C_TFPlayer::GetEffectiveInvisibilityLevel( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int C_TFPlayer::DrawModel( int flags )
+int C_TFPlayer::DrawModel( int flags, const RenderableInstance_t &instance )
 {
 	// If we're a dead player with a fresh ragdoll, don't draw
-	if ( m_nRenderFX == kRenderFxRagdoll )
+	if ( m_bClientSideRagdoll == true )
 		return 0;
 
 	// Don't draw the model at all if we're fully invisible
@@ -2414,7 +2402,7 @@ int C_TFPlayer::DrawModel( int flags )
 		pRenderContext->PushDeformation( &mybox );
 	}
 
-	int ret = BaseClass::DrawModel( flags );
+	int ret = BaseClass::DrawModel( flags, instance );
 
 	if ( bDoEffect )
 		pRenderContext->PopDeformation();
@@ -2496,8 +2484,8 @@ void C_TFPlayer::UpdateIDTarget()
 
 	trace_t tr;
 	Vector vecStart, vecEnd;
-	VectorMA( MainViewOrigin(), MAX_TRACE_LENGTH, MainViewForward(), vecEnd );
-	VectorMA( MainViewOrigin(), 10,   MainViewForward(), vecStart );
+	VectorMA( MainViewOrigin(0), MAX_TRACE_LENGTH, MainViewForward(0), vecEnd );
+	VectorMA( MainViewOrigin(0), 10,   MainViewForward(0), vecStart );
 
 	// If we're in observer mode, ignore our observer target. Otherwise, ignore ourselves.
 	if ( IsObserver() )
@@ -2557,7 +2545,7 @@ void C_TFPlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float& f
 	interpolation = SimpleSpline( interpolation );
 
 	m_flObserverChaseDistance += gpGlobals->frametime*48.0f;
-	m_flObserverChaseDistance = clamp(m_flObserverChaseDistance, CHASE_CAM_DISTANCE_MIN, CHASE_CAM_DISTANCE_MAX);
+	m_flObserverChaseDistance = clamp( m_flObserverChaseDistance, 16, CHASE_CAM_DISTANCE );
 
 	QAngle aForward = eyeAngles = EyeAngles();
 	Vector origin = EyePosition();			
@@ -2763,7 +2751,7 @@ void C_TFPlayer::DropPartyHat( breakablepropparams_t &breakParams, Vector &vecBr
 		breakModel.placementName[0] = 0;
 		breakModel.placementIsBone = false;
 		breakModel.offset = GetAbsOrigin() - m_hPartyHat->GetAbsOrigin();
-		BreakModelCreateSingle( this, &breakModel, m_hPartyHat->GetAbsOrigin(), m_hPartyHat->GetAbsAngles(), vecBreakVelocity, breakParams.angularVelocity, m_hPartyHat->m_nSkin, breakParams );
+		BreakModelCreateSingle( this, &breakModel, m_hPartyHat->GetAbsOrigin(), m_hPartyHat->GetAbsAngles(), vecBreakVelocity, breakParams.angularVelocity, m_hPartyHat->GetSkin(), breakParams );
 
 		m_hPartyHat->Release();
 	}
@@ -3031,7 +3019,7 @@ bool C_TFPlayer::IsOverridingViewmodel( void )
 //-----------------------------------------------------------------------------
 // Purpose: Draw my viewmodel in some special way
 //-----------------------------------------------------------------------------
-int	C_TFPlayer::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags )
+int	C_TFPlayer::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags, const RenderableInstance_t &instance )
 {
 	int ret = 0;
 
@@ -3048,7 +3036,7 @@ int	C_TFPlayer::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags 
 		// Force the invulnerable material
 		modelrender->ForcedMaterialOverride( *pPlayer->GetInvulnMaterialRef() );
 
-		ret = pViewmodel->DrawOverriddenViewmodel( flags );
+		ret = pViewmodel->DrawOverriddenViewmodel( flags, instance );
 
 		modelrender->ForcedMaterialOverride( NULL );
 	}
@@ -3183,10 +3171,10 @@ void C_TFPlayer::ValidateModelIndex( void )
 //-----------------------------------------------------------------------------
 // Purpose: Simulate the player for this frame
 //-----------------------------------------------------------------------------
-void C_TFPlayer::Simulate( void )
+bool C_TFPlayer::Simulate()
 {
 	//Frame updates
-	if ( this == C_BasePlayer::GetLocalPlayer() )
+	if ( !C_BasePlayer::IsLocalPlayer( this ) )
 	{
 		//Update the flashlight
 		Flashlight();
@@ -3194,7 +3182,9 @@ void C_TFPlayer::Simulate( void )
 
 	// TF doesn't do step sounds based on velocity, instead using anim events
 	// So we deliberately skip over the base player simulate, which calls them.
-	BaseClass::BaseClass::Simulate();
+	BaseClass::Simulate();
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -3253,7 +3243,7 @@ ShadowType_t C_TFPlayer::ShadowCastType( void )
 		return SHADOWS_NONE;
 
 	// If in ragdoll mode.
-	if ( m_nRenderFX == kRenderFxRagdoll )
+	if ( m_bClientSideRagdoll == true )
 		return SHADOWS_NONE;
 
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
@@ -3467,7 +3457,7 @@ void SetupHeadLabelMaterials( void )
 
 void C_TFPlayer::ComputeFxBlend( void )
 {
-	BaseClass::ComputeFxBlend();
+	//BaseClass::ComputeFxBlend();
 
 	if ( GetPlayerClass()->IsClass( TF_CLASS_SPY ) )
 	{

@@ -13,7 +13,7 @@
 #include "tf_gamerules.h"
 #include "tf_hud_objectivestatus.h"
 #include "tf_hud_statpanel.h"
-#include "iclientmode.h"
+#include "IClientMode.h"
 #include "c_playerresource.h"
 #include "tf_hud_building_status.h"
 #include "tf_hud_winpanel.h"
@@ -100,8 +100,8 @@ void CTFSpectatorGUI::UpdateReinforcements( void )
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pPlayer || pPlayer->IsHLTV() ||
 		( pPlayer->GetTeamNumber() != TF_TEAM_RED && pPlayer->GetTeamNumber() != TF_TEAM_BLUE ) ||
-		( pPlayer->m_Shared.GetState() != TF_STATE_OBSERVER && pPlayer->m_Shared.GetState() != TF_STATE_DYING ) ||
-		pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM )
+		( pPlayer->m_Shared.GetState() != TF_STATE_OBSERVER ) && ( pPlayer->m_Shared.GetState() != TF_STATE_DYING ) ||
+		( pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM ) )
 	{
 		m_pReinforcementsLabel->SetVisible( false );
 		return;
@@ -221,7 +221,7 @@ void CTFSpectatorGUI::UpdateKeyLabels( void )
 
 	if ( m_pSwitchCamModeKeyLabel )
 	{
-		if ( ( pPlayer && pPlayer->GetTeamNumber() > TEAM_SPECTATOR ) && ( ( mp_forcecamera.GetInt() == OBS_ALLOW_NONE ) || mp_fadetoblack.GetBool() ) )
+		if ( ( pPlayer && pPlayer->GetTeamNumber() > TEAM_SPECTATOR ) && ( ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) || ( mp_forcecamera.GetInt() == OBS_ALLOW_NONE ) || mp_fadetoblack.GetBool() ) )
 		{
 			if ( m_pSwitchCamModeKeyLabel->IsVisible() )
 			{
@@ -397,7 +397,7 @@ void CTFSpectatorGUI::ShowPanel(bool bShow)
 		{
 			if ( pStatus )
 			{
-				pStatus->SetParent( g_pClientMode->GetViewport() );
+				pStatus->SetParent( GetClientMode()->GetViewport() );
 			}
 
 			if ( pEngBuilds )

@@ -13,7 +13,7 @@
 #include "ienginevgui.h"
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/Label.h>
 #include "tf_shareddefs.h"
@@ -37,7 +37,7 @@ DECLARE_HUD_MESSAGE( CHudNotificationPanel, HudNotifyCustom );
 //-----------------------------------------------------------------------------
 CHudNotificationPanel::CHudNotificationPanel( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "NotificationPanel" )
 {
-	Panel *pParent = g_pClientMode->GetViewport();
+	Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS );

@@ -14,8 +14,8 @@
 #include <vgui_controls/Frame.h>
 #include <game/client/iviewport.h>
 #include <KeyValues.h>
-#include <filesystem.h>
-#include "materialsystem/imaterialvar.h"
+#include <FileSystem.h>
+#include "materialsystem/IMaterialVar.h"
 #include "IGameUIFuncs.h" // for key bindings
 
 #include "tf_controls.h"
@@ -28,14 +28,16 @@
 #include "tf_roundinfo.h"
 
 
-#include "vgui/ISurface.h"
+#include "vgui/isurface.h"
 #include <vgui/ILocalize.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include "engine/IEngineSound.h"
 
 using namespace vgui;
 
 const char *GetMapDisplayName( const char *mapName );
+
+#pragma warning(disable:4800) // 'int' : forcing value to bool 'true' or 'false'
 
 class RoundInfoOverlay : public vgui::EditablePanel
 {
@@ -270,7 +272,7 @@ void RoundInfoOverlay::Update( const char *szMapName )
 				{
 					roundinfo_control_point_t point;
 
-					Q_strncpy( point.m_szName, pData->GetName(), sizeof( point.m_szName ) );
+					Q_snprintf( point.m_szName, sizeof(point.m_szName), pData->GetName() );
 
 					// These x,y coords are relative to a 640x480 parent panel.
 					int wide, tall;

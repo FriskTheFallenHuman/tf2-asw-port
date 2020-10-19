@@ -8,9 +8,9 @@
 #include "c_te_effect_dispatch.h"
 #include "tier0/vprof.h"
 #include "clientsideeffects.h"
-#include "clienteffectprecachesystem.h"
+#include "ClientEffectPrecacheSystem.h"
 #include "view.h"
-#include "collisionutils.h"
+#include "CollisionUtils.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 #include "engine/IEngineSound.h"
 
@@ -37,7 +37,7 @@ void FX_TFTracerSound( const Vector &start, const Vector &end, int iTracerType )
 	
 	const char *pszSoundName = "Bullets.DefaultNearmiss";
 	float flWhizDist = 64;
-	Vector vecListenOrigin = MainViewOrigin();
+	Vector vecListenOrigin = MainViewOrigin(0);
 
 	switch( iTracerType )
 	{
@@ -83,9 +83,8 @@ void FX_TFTracerSound( const Vector &start, const Vector &end, int iTracerType )
 		VectorNormalize( shotDir );
 
 		CLocalPlayerFilter filter;
-
-		enginesound->EmitSound( filter, SOUND_FROM_WORLD, CHAN_STATIC, params.soundname,
-			params.volume, SNDLVL_TO_ATTN( params.soundlevel ), 0, params.pitch, 0, &start, &shotDir, NULL, false );
+		enginesound->EmitSound(	filter, SOUND_FROM_WORLD, CHAN_STATIC, params.soundname, 
+			params.volume, SNDLVL_TO_ATTN(params.soundlevel), 0, params.pitch, &start, &shotDir, false);
 	}
 
 	// Don't play another bullet whiz for this client until this time has run out
@@ -123,4 +122,4 @@ void BrightTracerCallback( const CEffectData &data )
 	FX_BrightTracer( (Vector&)data.m_vStart, (Vector&)data.m_vOrigin );
 }
 
-DECLARE_CLIENT_EFFECT( "BrightTracer", BrightTracerCallback );
+DECLARE_CLIENT_EFFECT( BrightTracer, BrightTracerCallback );

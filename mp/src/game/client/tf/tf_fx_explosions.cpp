@@ -13,6 +13,8 @@
 #include "c_basetempentity.h"
 #include "tier0/vprof.h"
 
+#pragma warning(disable:4800) // 'int' : forcing value to bool 'true' or 'false'
+
 //--------------------------------------------------------------------------------------------------------------
 CTFWeaponInfo *GetTFWeaponInfo( int iWeapon )
 {
@@ -62,7 +64,7 @@ void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int 
 	}
 
 	// Calculate the angles, given the normal.
-	bool bIsWater = ( UTIL_PointContents( vecOrigin ) & CONTENTS_WATER );
+	bool bIsWater = ( UTIL_PointContents( vecOrigin, MASK_WATER ) & CONTENTS_WATER );
 	bool bInAir = false;
 	QAngle angExplosion( 0.0f, 0.0f, 0.0f );
 

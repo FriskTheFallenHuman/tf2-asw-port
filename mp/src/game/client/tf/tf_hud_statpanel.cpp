@@ -7,12 +7,10 @@
 //=============================================================================//
 
 #include "cbase.h"
-#ifdef _WIN32
 #include "winerror.h"
-#endif
 #include "tf_hud_statpanel.h"
 #include "tf_hud_winpanel.h"
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include "vgui_controls/AnimationController.h"
 #include "iclientmode.h"
 #include "c_tf_playerresource.h"
@@ -22,7 +20,7 @@
 #include "tf/c_tf_player.h"
 #include "tf/c_tf_team.h"
 #include "tf/tf_steamstats.h"
-#include "filesystem.h"
+#include "FileSystem.h"
 #include "dmxloader/dmxloader.h"
 #include "fmtstr.h"
 #include "tf_statsummary.h"
@@ -129,7 +127,7 @@ CTFStatPanel::CTFStatPanel( const char *pElementName )
 	m_bStatsChanged = false;
 	m_bLocalFileTrusted = false;
 	m_flTimeLastSpawn = 0;
-	vgui::Panel *pParent = g_pClientMode->GetViewport();
+	vgui::Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 	m_bShouldBeVisible = false;
 	SetScheme( "ClientScheme" );
@@ -417,7 +415,7 @@ void CTFStatPanel::WriteStats( void )
 
 	if ( IsX360() )
 	{
-		xboxsystem->FinishContainerWrites();
+		xboxsystem->FinishContainerWrites(0);
 	}
 
 	m_bStatsChanged = false;
@@ -476,13 +474,13 @@ bool CTFStatPanel::ReadStats( void )
 		CDmxElement *pClass = aClassStatsList[ i ];
 		ClassStats_t &stat = m_aClassStats[ i ];
 
-		pClass->UnpackIntoStructure(&stat, sizeof(stat), s_ClassStatsUnpack);
+		pClass->UnpackIntoStructure( &stat, s_ClassStatsUnpack );
 
 		CDmxElement *pAccumulated = pClass->GetValue< CDmxElement * >( "accumulated" );
-		pAccumulated->UnpackIntoStructure(&stat.accumulated, sizeof(stat.accumulated), s_RoundStatsUnpack);
+		pAccumulated->UnpackIntoStructure( &stat.accumulated, s_RoundStatsUnpack );
 
 		CDmxElement *pMax = pClass->GetValue< CDmxElement * >( "max" );
-		pMax->UnpackIntoStructure( &stat.max, sizeof(stat.max), s_RoundStatsUnpack );
+		pMax->UnpackIntoStructure( &stat.max, s_RoundStatsUnpack );
 	}
 
 	CleanupDMX( pPlayerStats );

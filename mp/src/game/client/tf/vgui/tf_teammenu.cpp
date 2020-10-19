@@ -14,13 +14,13 @@
 #include <vgui_controls/Frame.h>
 #include <vgui/IScheme.h>
 #include <game/client/iviewport.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include <KeyValues.h>
-#include <filesystem.h>
+#include <FileSystem.h>
 
 #include "vguicenterprint.h"
 #include "tf_controls.h"
-#include "basemodelpanel.h"
+#include "tf_modelpanel.h"
 #include "tf_teammenu.h"
 #include <convar.h>
 #include "IGameUIFuncs.h" // for key bindings
@@ -299,7 +299,7 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 
 	if ( !C_TFPlayer::GetLocalTFPlayer() )
 		return;
-	if ( !gameuifuncs || !gViewPortInterface || !engine )
+	if ( !gameuifuncs || !GetViewPortInterface() || !engine )
 		return;
 
 	if ( bShow )
@@ -322,8 +322,8 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 			return;
 		}
 
-		gViewPortInterface->ShowPanel( PANEL_CLASS_RED, false );
-		gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, false );
+		GetViewPortInterface()->ShowPanel( PANEL_CLASS_RED, false );
+		GetViewPortInterface()->ShowPanel( PANEL_CLASS_BLUE, false );
 
 		engine->CheckPoint( "TeamMenu" );
 
@@ -518,8 +518,8 @@ void CTFTeamMenu::OnKeyCodePressed( KeyCode code )
 	}
 	else if ( m_iScoreBoardKey != BUTTON_CODE_INVALID && m_iScoreBoardKey == code )
 	{
-		gViewPortInterface->ShowPanel( PANEL_SCOREBOARD, true );
-		gViewPortInterface->PostMessageToPanel( PANEL_SCOREBOARD, new KeyValues( "PollHideCode", "code", code ) );
+		GetViewPortInterface()->ShowPanel( PANEL_SCOREBOARD, true );
+		GetViewPortInterface()->PostMessageToPanel( PANEL_SCOREBOARD, new KeyValues( "PollHideCode", "code", code ) );
 	}
 	else
 	{
@@ -620,12 +620,12 @@ void CTFTeamMenu::OnTick()
 	
 	int iCurrentTeam = pLocalPlayer->GetTeamNumber();
 
-	if ( ( bUnbalanced && iHeavyTeam == TF_TEAM_RED ) || ( pRules->WouldChangeUnbalanceTeams( TF_TEAM_RED, iCurrentTeam ) ) )
+	if ( ( bUnbalanced && iHeavyTeam == TF_TEAM_RED ) || ( pRules->WouldChangeUnbalanceTeams( pRed->GetNumPlayers(), TF_TEAM_RED, iCurrentTeam ) ) )
 	{
 		m_bRedDisabled = true;
 	}
 
-	if ( ( bUnbalanced && iHeavyTeam == TF_TEAM_BLUE ) || ( pRules->WouldChangeUnbalanceTeams( TF_TEAM_BLUE, iCurrentTeam ) ) )
+	if ( ( bUnbalanced && iHeavyTeam == TF_TEAM_BLUE ) || ( pRules->WouldChangeUnbalanceTeams( pBlue->GetNumPlayers(), TF_TEAM_BLUE, iCurrentTeam ) ) )
 	{
 		m_bBlueDisabled = true;
 	}

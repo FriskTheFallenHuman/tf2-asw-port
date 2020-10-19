@@ -9,8 +9,8 @@
 #include "hud_macros.h"
 #include "c_playerresource.h"
 #include "iclientmode.h"
-#include <vgui_controls/Controls.h>
-#include <vgui_controls/Panel.h>
+#include <vgui_controls/controls.h>
+#include <vgui_controls/panel.h>
 #include <vgui/ISurface.h>
 #include <vgui/ILocalize.h>
 #include <KeyValues.h>
@@ -24,7 +24,7 @@
 #include "c_tf_player.h"
 #include "c_tf_playerresource.h"
 #include "tf_hud_freezepanel.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -70,7 +70,7 @@ void CTFHudDeathNotice::ApplySchemeSettings( vgui::IScheme *scheme )
 {
 	BaseClass::ApplySchemeSettings( scheme );
 
-	m_iconDomination = gHUD.GetIcon( "leaderboard_dominated" );
+	m_iconDomination = HudIcons().GetIcon( "leaderboard_dominated" );
 }
 
 bool CTFHudDeathNotice::IsVisible( void )

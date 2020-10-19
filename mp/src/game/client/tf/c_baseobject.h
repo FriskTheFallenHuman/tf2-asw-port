@@ -66,7 +66,7 @@ public:
 	virtual	void	SetupAttachedVersion( void ) { return; }
 
 	virtual const char	*GetTargetDescription( void ) const;
-	virtual const char	*GetIDString( void );
+	virtual char	*GetIDString( void );
 	virtual bool	IsValidIDTarget( void );
 
 	virtual void	GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );
@@ -98,9 +98,9 @@ public:
 	bool IsOwnedByLocalPlayer() const;
 	C_TFPlayer *GetOwner();
 
-	virtual void	Simulate();
+	virtual bool	Simulate();
 
-	virtual int		DrawModel( int flags );
+	virtual int		DrawModel( int flags, const RenderableInstance_t &instance );
 
 	float			GetPercentageConstructed( void ) { return m_flPercentageConstructed; }
 

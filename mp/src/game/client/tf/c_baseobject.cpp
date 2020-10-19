@@ -11,13 +11,13 @@
 #include "c_tf_team.h"
 #include "engine/IEngineSound.h"
 #include "particles_simple.h"
-#include "functionproxy.h"
-#include "IEffects.h"
+#include "FunctionProxy.h"
+#include "ieffects.h"
 #include "model_types.h"
 #include "particlemgr.h"
 #include "particle_collision.h"
 #include "c_tf_weapon_builder.h"
-#include "ivrenderview.h"
+#include "IVRenderView.h"
 #include "ObjectControlPanel.h"
 #include "engine/ivmodelinfo.h"
 #include "c_te_effect_dispatch.h"
@@ -28,9 +28,6 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-
-// forward declarations
-void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 
 #define MAX_VISIBLE_BUILDPOINT_DISTANCE		(400 * 400)
 
@@ -305,7 +302,7 @@ void C_BaseObject::OnPlacementStateChanged( bool bValidPlacement )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void C_BaseObject::Simulate( void )
+bool C_BaseObject::Simulate()
 {
 	if ( IsPlacing() && !MustBeBuiltOnAttachmentPoint() )
 	{
@@ -335,6 +332,8 @@ void C_BaseObject::Simulate( void )
 	}	
 
 	BaseClass::Simulate();
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -359,18 +358,18 @@ bool C_BaseObject::WasLastPlacementPosValid( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int C_BaseObject::DrawModel( int flags )
+int C_BaseObject::DrawModel( int flags, const RenderableInstance_t &instance )
 {
 	int drawn;
 
 	// If we're a brush-built, map-defined object chain up to baseentity draw
 	if ( modelinfo->GetModelType( GetModel() ) == mod_brush )
 	{
-		drawn = CBaseEntity::DrawModel(flags);
+		drawn = CBaseEntity::DrawModel(flags,instance);
 	}
 	else
 	{
-		drawn = BaseClass::DrawModel(flags);
+		drawn = BaseClass::DrawModel(flags,instance);
 	}
 
 	HighlightBuildPoints( flags );
@@ -643,7 +642,7 @@ const char *C_BaseObject::GetTargetDescription( void ) const
 //-----------------------------------------------------------------------------
 // Purpose: Get a text description for the object target (more verbose)
 //-----------------------------------------------------------------------------
-const char *C_BaseObject::GetIDString(void)
+char *C_BaseObject::GetIDString( void )
 {
 	m_szIDString[0] = 0;
 	RecalculateIDString();
@@ -859,9 +858,6 @@ void C_BaseObject::StopAnimGeneratedSounds( void )
 
 	mstudioseqdesc_t &seqdesc = pStudioHdr->pSeqdesc( GetSequence() );
 
-	if ( seqdesc.numevents == 0 )
-		return;
-
 	float flCurrentCycle = GetCycle();
 
 	mstudioevent_t *pevent = GetEventIndexForSequence( seqdesc );
@@ -870,7 +866,7 @@ void C_BaseObject::StopAnimGeneratedSounds( void )
 	{
 		if ( pevent[i].cycle < flCurrentCycle )
 		{
-			if ( pevent[i].event == CL_EVENT_SOUND || pevent[i].event == AE_CL_PLAYSOUND )
+			if ( pevent[i].Event() == CL_EVENT_SOUND || pevent[i].Event() == AE_CL_PLAYSOUND )
 			{
 				StopSound( entindex(), pevent[i].options );
 			}
@@ -913,10 +909,10 @@ void CObjectPowerProxy::OnBind( void *pRenderable )
 
 	SetFloatResult(  m_Factor.GetFloat() );
 
-	if ( ToolsEnabled() )
+	/*if ( ToolsEnabled() )
 	{
 		ToolFramework_RecordMaterialParams( GetMaterial() );
-	}
+	}*/
 }
 
 EXPOSE_INTERFACE( CObjectPowerProxy, IMaterialProxy, "ObjectPower" IMATERIAL_PROXY_INTERFACE_VERSION );

@@ -12,7 +12,6 @@
 #endif
 
 #include <vgui_controls/Frame.h>
-#include "vgui_controls/KeyRepeat.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: displays the MapInfo menu
@@ -41,6 +40,7 @@ public:
 	virtual void SetParent( vgui::VPANEL parent ){ BaseClass::SetParent( parent ); }
 
 	static const char *GetMapType( const char *mapName );
+	virtual bool WantsBackgroundBlurred(void) { return false; }
 
 protected:
 	virtual void OnKeyCodePressed(vgui::KeyCode code);
@@ -74,8 +74,6 @@ protected:
 	vgui::ImagePanel	*m_pMapImage;
 
 	char				m_szMapName[MAX_PATH];
-
-	vgui::CKeyRepeatHandler	m_KeyRepeat;
 };
 
 

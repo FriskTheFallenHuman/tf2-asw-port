@@ -9,9 +9,9 @@
 #include "tf_classmenu.h"
 
 #include <KeyValues.h>
-#include <filesystem.h>
+#include <FileSystem.h>
 #include <vgui_controls/Button.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 
 #include "hud.h" // for gEngfuncs
 #include "c_tf_player.h"
@@ -21,7 +21,7 @@
 #include "tf_controls.h"
 #include "vguicenterprint.h"
 #include "imagemouseoverbutton.h"
-#include "IconPanel.h"
+#include "iconpanel.h"
 
 #include "IGameUIFuncs.h" // for key bindings
 
@@ -228,8 +228,6 @@ void CTFClassMenu::ShowPanel( bool bShow )
 //-----------------------------------------------------------------------------
 void CTFClassMenu::OnKeyCodePressed( KeyCode code )
 {
-	m_KeyRepeat.KeyDown( code );
-
 	if ( ( m_iClassMenuKey != BUTTON_CODE_INVALID && m_iClassMenuKey == code ) ||
 		code == KEY_XBUTTON_BACK || 
 		code == KEY_XBUTTON_B )
@@ -319,8 +317,6 @@ void CTFClassMenu::OnKeyCodePressed( KeyCode code )
 //-----------------------------------------------------------------------------
 void CTFClassMenu::OnKeyCodeReleased( vgui::KeyCode code )
 {
-	m_KeyRepeat.KeyUp( code );
-
 	BaseClass::OnKeyCodeReleased( code );
 }
 
@@ -329,12 +325,6 @@ void CTFClassMenu::OnKeyCodeReleased( vgui::KeyCode code )
 //-----------------------------------------------------------------------------
 void CTFClassMenu::OnThink()
 {
-	vgui::KeyCode code = m_KeyRepeat.KeyRepeated();
-	if ( code )
-	{
-		OnKeyCodePressed( code );
-	}
-
 	BaseClass::OnThink();
 }
 
@@ -445,8 +435,6 @@ void CTFClassMenu::OnClose()
 void CTFClassMenu::SetVisible( bool state )
 {
 	BaseClass::SetVisible( state );
-
-	m_KeyRepeat.Reset();
 
 	if ( state )
 	{

@@ -30,7 +30,7 @@ DECLARE_HUDELEMENT_DEPTH( CTFFreezePanel, 1 );
 #define CALLOUT_WIDE		(XRES(100))
 #define CALLOUT_TALL		(XRES(50))
 
-extern float g_flFreezeFlash;
+extern float g_flFreezeFlash[ MAX_SPLITSCREEN_PLAYERS ];
 
 #define FREEZECAM_SCREENSHOT_STRING "is looking good!"
 
@@ -61,7 +61,7 @@ DECLARE_BUILD_FACTORY( CTFFreezePanelHealth );
 CTFFreezePanel::CTFFreezePanel( const char *pElementName )
 	: EditablePanel( NULL, "FreezePanel" ), CHudElement( pElementName )
 {
-	vgui::Panel *pParent = g_pClientMode->GetViewport();
+	vgui::Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 	SetVisible( false );
 	SetScheme( "ClientScheme" );
@@ -265,7 +265,6 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 
 				if ( m_pAvatar )
 				{
-					m_pAvatar->SetShouldDrawFriendIcon( false );
 					m_pAvatar->SetPlayer( (C_BasePlayer*)pKiller );
 				}
 			}
@@ -284,7 +283,6 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 
 					if ( m_pAvatar )
 					{
-						m_pAvatar->SetShouldDrawFriendIcon( false );
 						m_pAvatar->SetPlayer( pOwner );
 					}
 
@@ -418,13 +416,13 @@ CTFFreezePanelCallout *CTFFreezePanel::TestAndAddCallout( Vector &origin, Vector
 					{
 						// Verify that we have LOS to the gib
 						trace_t	tr;
-						UTIL_TraceLine( origin, MainViewOrigin(), MASK_OPAQUE, NULL, COLLISION_GROUP_NONE, &tr );
+						UTIL_TraceLine( origin, MainViewOrigin(0), MASK_OPAQUE, NULL, COLLISION_GROUP_NONE, &tr );
 						bClear = ( tr.fraction >= 1.0f );
 					}
 
 					if ( bClear )
 					{
-						CTFFreezePanelCallout *pCallout = new CTFFreezePanelCallout( g_pClientMode->GetViewport(), "FreezePanelCallout" );
+						CTFFreezePanelCallout *pCallout = new CTFFreezePanelCallout( GetClientMode()->GetViewport(), "FreezePanelCallout" );
 						m_pCalloutPanels.AddToTail( vgui::SETUP_PANEL(pCallout) );
 						vecCalloutsTL->AddToTail( vecCalloutTL );
 						vecCalloutsBR->AddToTail( vecCalloutBR );
@@ -530,10 +528,12 @@ void CTFFreezePanel::UpdateCallout( void )
 			if ( pKiller && pKiller->m_Shared.InCond( TF_COND_TAUNTING ) )
 			{
 				// tell the server our ragdoll just got taunted during our freezecam
-				KeyValues *pKeys = new KeyValues( "FreezeCamTaunt" );
-				pKeys->SetInt( "achiever", GetSpectatorTarget() );
+				char cmd[256];
+				int iPlayerID = pPlayer->GetUserID();
+				unsigned short mask = UTIL_GetAchievementEventMask();
 
-				engine->ServerCmdKeyValues( pKeys );
+				Q_snprintf( cmd, sizeof( cmd ), "freezecam_taunt %d %d", GetSpectatorTarget() ^ mask, ( iPlayerID ^ GetSpectatorTarget() ) ^ mask );
+				engine->ClientCmd_Unrestricted( cmd );
 			}
 		}
 	}
@@ -639,7 +639,7 @@ void CTFFreezePanel::ShowSnapshotPanel( bool bShow )
 
 		m_pScreenshotPanel->SetDialogVariable( "text", wLabel );
 
-		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudSnapShotReminderIn" );
+		GetClientMode()->GetViewportAnimationController()->StartAnimationSequence( this, "HudSnapShotReminderIn" );
 	}
 
 	m_pScreenshotPanel->SetVisible( bShow );
@@ -664,7 +664,7 @@ int	CTFFreezePanel::HudElementKeyInput( int down, ButtonCode_t keynum, const cha
 			if ( pPlayer )
 			{
 				//Do effects
-				g_flFreezeFlash = gpGlobals->curtime + 0.75f;
+				g_flFreezeFlash[ 0 ] = gpGlobals->curtime + 0.75f;
 				pPlayer->EmitSound( "Camera.SnapShot" );
 
 				//Extend Freezecam by a couple more seconds.

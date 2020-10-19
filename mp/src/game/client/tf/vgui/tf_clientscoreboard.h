@@ -52,7 +52,8 @@ private:
 	void UpdatePlayerDetails();
 	void ClearPlayerDetails();
 	bool ShouldShowAsSpectator( int iPlayerIndex );
-	
+	void MoveToCenterOfScreen();
+
 	virtual void FireGameEvent( IGameEvent *event );
 
 	static bool TFPlayerSortFunc( vgui::SectionedListPanel *list, int itemID1, int itemID2 );

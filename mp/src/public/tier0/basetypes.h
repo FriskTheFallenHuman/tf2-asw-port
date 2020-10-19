@@ -91,10 +91,14 @@ T abs( const T &a )
 #define COMPILETIME_MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #ifndef MIN
 #define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
+#undef min
+#define min MIN
 #endif
 
 #ifndef MAX
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#undef max
+#define max MAX
 #endif
 
 

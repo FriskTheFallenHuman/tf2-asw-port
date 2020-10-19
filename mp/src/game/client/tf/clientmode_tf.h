@@ -12,7 +12,7 @@
 
 #include "clientmode_shared.h"
 #include "tf_viewport.h"
-#include "GameUI/IGameUI.h"
+#include "GameUI/igameui.h"
 
 class CHudMenuEngyBuild;
 class CHudMenuEngyDestroy;
@@ -39,26 +39,24 @@ public:
 	virtual void	InitViewport();
 	virtual void	Shutdown();
 
-	virtual void	OverrideView( CViewSetup *pSetup );
-
-//	virtual int		KeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
-
 	virtual float	GetViewModelFOV( void );
 	virtual bool	ShouldDrawViewModel();
+
+	virtual void	LevelInit( const char *newmap );
+	virtual void	LevelShutdown( void );
 
 	int				GetDeathMessageStartHeight( void );
 
 	virtual void	FireGameEvent( IGameEvent *event );
-	virtual void	PostRenderVGui();
+	virtual void	PostRenderVGui() {}
 
-	virtual bool	CreateMove( float flInputSampleTime, CUserCmd *cmd );
-
-	virtual int		HudElementKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
-	virtual int		HandleSpectatorKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
-	
-private:
-	
-	//	void	UpdateSpectatorMode( void );
+	virtual void	DoObjectMotionBlur( const CViewSetup *pSetup );
+	virtual void	UpdatePostProcessingEffects();
+	virtual void	Update( void );
+	virtual void	DoPostScreenSpaceEffects( const CViewSetup *pSetup );
+	virtual void	OnColorCorrectionWeightsReset( void );
+	virtual float	GetColorCorrectionScale( void ) const { return 1.0f; }
+	virtual void	ClearCurrentColorCorrection() { m_pCurrentColorCorrection = NULL; }
 
 private:
 
@@ -68,11 +66,19 @@ private:
 	CTFFreezePanel		*m_pFreezePanel;
 	IGameUI			*m_pGameUI;
 
+	const C_PostProcessController *m_pCurrentPostProcessController;
+	PostProcessParameters_t m_CurrentPostProcessParameters;
+	PostProcessParameters_t m_LerpStartPostProcessParameters, m_LerpEndPostProcessParameters;
+	CountdownTimer m_PostProcessLerpTimer;
+
+	CHandle<C_ColorCorrection> m_pCurrentColorCorrection;
+
 #if defined( _X360 )
 	CTFClientScoreBoardDialog	*m_pScoreboard;
 #endif
-};
 
+	friend class ClientModeTFFullscreen;
+};
 
 extern IClientMode *GetClientModeNormal();
 extern ClientModeTFNormal* GetClientModeTFNormal();

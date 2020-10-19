@@ -13,7 +13,7 @@
 #include "ienginevgui.h"
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include <vgui_controls/Label.h>
 #include <vgui_controls/EditablePanel.h>
 #include "tf_imagepanel.h"
@@ -57,7 +57,7 @@ DECLARE_HUDELEMENT( CHudTeamSwitch );
 //-----------------------------------------------------------------------------
 CHudTeamSwitch::CHudTeamSwitch( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "HudTeamSwitch" )
 {
-	Panel *pParent = g_pClientMode->GetViewport();
+	Panel *pParent = GetClientMode()->GetViewport();
 	SetParent( pParent );
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS );

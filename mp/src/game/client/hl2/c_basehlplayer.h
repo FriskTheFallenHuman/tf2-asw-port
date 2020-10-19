@@ -36,8 +36,10 @@ public:
 
 	//Tony; minor cosmetic really, fix confusion by simply renaming this one; everything calls IsSprinting(), and this isn't really even used.
 	bool				IsSprintActive( void ) { return m_HL2Local.m_bitsActiveDevices & bits_SUIT_DEVICE_SPRINT; }
+#ifndef TF_MOD_CLIENT
 	bool				IsFlashlightActive( void ) { return m_HL2Local.m_bitsActiveDevices & bits_SUIT_DEVICE_FLASHLIGHT; }
 	bool				IsBreatherActive( void ) { return m_HL2Local.m_bitsActiveDevices & bits_SUIT_DEVICE_BREATHER; }
+#endif
 
 	virtual int			DrawModel( int flags, const RenderableInstance_t &instance );
 

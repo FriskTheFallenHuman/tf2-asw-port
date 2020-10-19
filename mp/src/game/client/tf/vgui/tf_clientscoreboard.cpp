@@ -16,12 +16,12 @@
 #include <vgui/IScheme.h>
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVgui.h>
 #include <vgui_controls/SectionedListPanel.h>
 #include <vgui_controls/ImageList.h>
 #include <game/client/iviewport.h>
 #include <KeyValues.h>
-#include <filesystem.h>
+#include <FileSystem.h>
 #include "IGameUIFuncs.h" // for key bindings
 
 #include "tf_controls.h"
@@ -142,14 +142,14 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 		return;
 	}
 
-	int iRenderGroup = gHUD.LookupRenderGroupIndexByName( "global" );
+	int iRenderGroup = GetHud().LookupRenderGroupIndexByName( "global" );
 
 	if ( bShow )
 	{		
 		SetVisible( true );
 		MoveToFront();
 
-		gHUD.LockRenderGroup( iRenderGroup );
+		GetHud().LockRenderGroup( iRenderGroup );
 
 		// Clear the selected item, this forces the default to the local player
 		SectionedListPanel *pList = GetSelectedPlayerList();
@@ -162,7 +162,7 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 	{
 		SetVisible( false );
 
-		gHUD.UnlockRenderGroup( iRenderGroup );
+		GetHud().UnlockRenderGroup( iRenderGroup );
 	}
 }
 
@@ -209,6 +209,17 @@ void CTFClientScoreBoardDialog::SetPlayerListImages( vgui::SectionedListPanel *p
 {
 	pPlayerList->SetImageList( m_pImageList, false );
 	pPlayerList->SetVisible( true );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Center the dialog on the screen.  (vgui has this method on
+//			Frame, but we're an EditablePanel, need to roll our own.)
+//-----------------------------------------------------------------------------
+void CTFClientScoreBoardDialog::MoveToCenterOfScreen()
+{
+	int wx, wy, ww, wt;
+	surface()->GetWorkspaceBounds(wx, wy, ww, wt);
+	SetPos((ww - GetWide()) / 2, (wt - GetTall()) / 2);
 }
 
 //-----------------------------------------------------------------------------

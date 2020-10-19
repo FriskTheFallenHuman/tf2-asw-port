@@ -12,12 +12,10 @@
 #include <game/client/iviewport.h>
 #include <vgui/ILocalize.h>
 #include <KeyValues.h>
-#include <filesystem.h>
+#include <FileSystem.h>
 #include "IGameUIFuncs.h" // for key bindings
 
-#ifdef _WIN32
 #include "winerror.h"
-#endif
 #include "ixboxsystem.h"
 #include "tf_gamerules.h"
 #include "tf_controls.h"
@@ -132,8 +130,6 @@ void CTFMapInfoMenu::ShowPanel( bool bShow )
 	if ( IsVisible() == bShow )
 		return;
 
-	m_KeyRepeat.Reset();
-
 	if ( bShow )
 	{
 		Activate();
@@ -230,8 +226,6 @@ void CTFMapInfoMenu::CheckBackContinueButtons()
 //-----------------------------------------------------------------------------
 void CTFMapInfoMenu::OnCommand( const char *command )
 {
-	m_KeyRepeat.Reset();
-
 	if ( !Q_strcmp( command, "back" ) )
 	{
 		 // only want to go back to the Welcome menu if we're not already on a team
@@ -368,7 +362,7 @@ void CTFMapInfoMenu::LoadMapPage( const char *mapName )
 
 		if ( g_pFullFileSystem->FileExists( pszDefault ) )
 		{
-			Q_strncpy( mapRES, pszDefault, sizeof( mapRES ) );
+			Q_snprintf ( mapRES, sizeof( mapRES ), pszDefault );
 		}
 		else
 		{
@@ -391,39 +385,49 @@ void CTFMapInfoMenu::LoadMapPage( const char *mapName )
 
 	// read into a memory block
 	int fileSize = g_pFullFileSystem->Size(f);
-	int bufSize = fileSize + 2;
-	char *memBlock = new char[bufSize];
-	g_pFullFileSystem->Read(memBlock, fileSize, f);
-	ucs2 *pUCS2 = (ucs2 *)memBlock;
+	int dataSize = fileSize + sizeof( wchar_t );
+	if ( dataSize % 2 )
+		++dataSize;
+	wchar_t *memBlock = (wchar_t *)malloc(dataSize);
+	memset( memBlock, 0x0, dataSize);
+	int bytesRead = g_pFullFileSystem->Read(memBlock, fileSize, f);
+	if ( bytesRead < fileSize )
+	{
+		// NULL-terminate based on the length read in, since Read() can transform \r\n to \n and
+		// return fewer bytes than we were expecting.
+		char *data = reinterpret_cast<char *>( memBlock );
+		data[ bytesRead ] = 0;
+		data[ bytesRead+1 ] = 0;
+	}
 
-	// null-terminate the stream
-	pUCS2[bufSize - 1] = 0;
+	// null-terminate the stream (redundant, since we memset & then trimmed the transformed buffer already)
+	memBlock[dataSize / sizeof(wchar_t) - 1] = 0x0000;
 
 	// check the first character, make sure this a little-endian unicode file
-	if ( LittleShort( pUCS2[0] ) != 0xFEFF )
+
+#if defined( _X360 )
+	if ( memBlock[0] != 0xFFFE )
+#else
+	if ( memBlock[0] != 0xFEFF )
+#endif
 	{
 		// its a ascii char file
-		m_pMapInfo->SetText( memBlock );
+		m_pMapInfo->SetText( reinterpret_cast<char *>( memBlock ) );
 	}
 	else
 	{
-		// convert UCS-2 LE buffer to wide string
-		wchar_t *wBuf = new wchar_t[bufSize];
-		V_UCS2ToUnicode( pUCS2, wBuf, bufSize * sizeof( wchar_t ) );
-
 		// ensure little-endian unicode reads correctly on all platforms
 		CByteswap byteSwap;
 		byteSwap.SetTargetBigEndian( false );
-		byteSwap.SwapBufferToTargetEndian( wBuf, wBuf, bufSize );
+		byteSwap.SwapBufferToTargetEndian( memBlock, memBlock, dataSize/sizeof(wchar_t) );
 
-		m_pMapInfo->SetText( wBuf + 1 );
-		delete[] wBuf;
+		m_pMapInfo->SetText( memBlock+1 );
 	}
 	// go back to the top of the text buffer
 	m_pMapInfo->GotoTextStart();
 
 	g_pFullFileSystem->Close( f );
-	delete[] memBlock;
+	free(memBlock);
 
 	// we haven't loaded a valid map image for the current map
 	if ( m_pMapImage && !m_pMapImage->IsVisible() )
@@ -448,8 +452,6 @@ void CTFMapInfoMenu::SetMapTitle()
 //-----------------------------------------------------------------------------
 void CTFMapInfoMenu::OnKeyCodePressed( KeyCode code )
 {
-	m_KeyRepeat.KeyDown( code );
-
 	if ( code == KEY_XBUTTON_A )
 	{
 		OnCommand( "continue" );
@@ -485,8 +487,6 @@ void CTFMapInfoMenu::OnKeyCodePressed( KeyCode code )
 //-----------------------------------------------------------------------------
 void CTFMapInfoMenu::OnKeyCodeReleased( vgui::KeyCode code )
 {
-	m_KeyRepeat.KeyUp( code );
-
 	BaseClass::OnKeyCodeReleased( code );
 }
 
@@ -495,12 +495,6 @@ void CTFMapInfoMenu::OnKeyCodeReleased( vgui::KeyCode code )
 //-----------------------------------------------------------------------------
 void CTFMapInfoMenu::OnThink()
 {
-	vgui::KeyCode code = m_KeyRepeat.KeyRepeated();
-	if ( code )
-	{
-		OnKeyCodePressed( code );
-	}
-
 	BaseClass::OnThink();
 }
 
@@ -512,13 +506,13 @@ struct s_MapInfo
 };
 
 static s_MapInfo s_Maps[] = {
-	{	"ctf_2fort",	"2Fort",		"#Gametype_CTF",		},
-	{	"cp_dustbowl",	"Dustbowl",		"#TF_AttackDefend",		},
-	{	"cp_granary",	"Granary",		"#Gametype_CP",			},
-	{	"cp_well",		"Well (CP)",	"#Gametype_CP",			},
-	{	"cp_gravelpit", "Gravel Pit",	"#TF_AttackDefend",		},
-	{	"tc_hydro",		"Hydro",		"#TF_TerritoryControl",	},
-	{	"ctf_well",		"Well (CTF)",	"#Gametype_CTF",		},
+	"ctf_2fort",	"2Fort",		"#Gametype_CTF",
+	"cp_dustbowl",	"Dustbowl",		"#TF_AttackDefend",
+	"cp_granary",	"Granary",		"#Gametype_CP",
+	"cp_well",		"Well (CP)",	"#Gametype_CP",
+	"cp_gravelpit", "Gravel Pit",	"#TF_AttackDefend",
+	"tc_hydro",		"Hydro",		"#TF_TerritoryControl",
+	"ctf_well",		"Well (CTF)",	"#Gametype_CTF",
 };
 
 //-----------------------------------------------------------------------------
