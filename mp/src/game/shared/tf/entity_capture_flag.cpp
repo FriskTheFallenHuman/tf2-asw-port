@@ -1086,11 +1086,13 @@ float CCaptureFlag::GetReturnProgress()
 }
 
 
-void CCaptureFlag::Simulate( void )
+bool CCaptureFlag::Simulate()
 {
+	ManageTrailEffects();
+
 	BaseClass::Simulate();
 
-	ManageTrailEffects();
+	return true;
 }
 
 void CCaptureFlag::ManageTrailEffects( void )
@@ -1234,7 +1236,7 @@ progress_segment_t Segments[8] =
 //-----------------------------------------------------------------------------
 RenderGroup_t CCaptureFlagReturnIcon::GetRenderGroup( void ) 
 {	
-	return RENDER_GROUP_TRANSLUCENT_ENTITY;	
+	return RENDER_GROUP_TRANSLUCENT;	
 }
 
 void CCaptureFlagReturnIcon::GetRenderBounds( Vector& theMins, Vector& theMaxs )
@@ -1246,9 +1248,9 @@ void CCaptureFlagReturnIcon::GetRenderBounds( Vector& theMins, Vector& theMaxs )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CCaptureFlagReturnIcon::DrawModel( int flags )
+int CCaptureFlagReturnIcon::DrawModel( int flags, const RenderableInstance_t &instance )
 {
-	int nRetVal = BaseClass::DrawModel( flags );
+	int nRetVal = BaseClass::DrawModel( flags, instance );
 	
 	DrawReturnProgressBar();
 

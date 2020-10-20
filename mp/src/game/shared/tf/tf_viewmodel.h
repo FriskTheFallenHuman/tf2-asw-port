@@ -44,13 +44,13 @@ public:
 		return BaseClass::ShouldPredict();
 	}
 
-	virtual void StandardBlendingRules( CStudioHdr *hdr, Vector pos[], Quaternion q[], float currentTime, int boneMask );
+	virtual void StandardBlendingRules( CStudioHdr *hdr, Vector pos[], QuaternionAligned q[], float currentTime, int boneMask );
 	virtual void ProcessMuzzleFlashEvent( void );
 
 	virtual int GetSkin();
 	BobState_t	&GetBobState() { return m_BobState; }
 
-	virtual int DrawModel( int flags );
+	virtual int DrawModel( int flags, const RenderableInstance_t &instance );
 #endif
 
 private:

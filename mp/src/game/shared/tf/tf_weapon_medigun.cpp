@@ -14,7 +14,7 @@
 
 #if defined( CLIENT_DLL )
 #include <vgui_controls/Panel.h>
-#include <vgui/ISurface.h>
+#include <vgui/isurface.h>
 #include "particles_simple.h"
 #include "c_tf_player.h"
 #include "soundenvelope.h"
@@ -803,8 +803,8 @@ void CWeaponMedigun::PrimaryAttack( void )
 #endif
 
 #if !defined (CLIENT_DLL)
-	if ( tf_medigun_lagcomp.GetBool() )
-		lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
+	/*if ( tf_medigun_lagcomp.GetBool() )
+		lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );*/
 #endif
 
 	if ( FindAndHealTargets() )

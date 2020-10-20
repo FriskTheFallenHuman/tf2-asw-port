@@ -12,9 +12,9 @@
 #include "c_tf_player.h"
 
 // for spy material proxy
-#include "proxyentity.h"
-#include "materialsystem/imaterial.h"
-#include "materialsystem/imaterialvar.h"
+#include "ProxyEntity.h"
+#include "materialsystem/IMaterial.h"
+#include "materialsystem/IMaterialVar.h"
 #include "prediction.h"
 
 #endif
@@ -149,7 +149,7 @@ void CTFViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosit
 // Purpose: Don't render the weapon if its supposed to be lowered and we have 
 // finished the lowering animation
 //-----------------------------------------------------------------------------
-int CTFViewModel::DrawModel( int flags )
+int CTFViewModel::DrawModel( int flags, const RenderableInstance_t &instance )
 {
 	// Check for lowering the weapon
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
@@ -179,13 +179,13 @@ int CTFViewModel::DrawModel( int flags )
 		 return 0;
 	}
 
-	return BaseClass::DrawModel( flags );
+	return BaseClass::DrawModel( flags, instance );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFViewModel::StandardBlendingRules( CStudioHdr *hdr, Vector pos[], Quaternion q[], float currentTime, int boneMask )
+void CTFViewModel::StandardBlendingRules( CStudioHdr *hdr, Vector pos[], QuaternionAligned q[], float currentTime, int boneMask )
 {
 	BaseClass::StandardBlendingRules( hdr, pos, q, currentTime, boneMask );
 
@@ -202,7 +202,7 @@ void CTFViewModel::StandardBlendingRules( CStudioHdr *hdr, Vector pos[], Quatern
 
 		Assert( iBarrelBone != -1 );
 
-		if ( iBarrelBone != -1 && ( hdr->boneFlags( iBarrelBone ) & boneMask ) )
+		if ( iBarrelBone != -1 )
 		{
 			RadianEuler a;
 			QuaternionAngles( q[iBarrelBone], a );
@@ -221,7 +221,7 @@ void CTFViewModel::ProcessMuzzleFlashEvent()
 {
 	CTFWeaponBase *pWeapon = ( CTFWeaponBase * )GetOwningWeapon();
 
-	if ( !pWeapon || C_BasePlayer::ShouldDrawLocalPlayer() ) 
+	if ( !pWeapon || C_BasePlayer::GetLocalPlayer() ) 
 		return;
 
 	pWeapon->ProcessMuzzleFlashEvent();

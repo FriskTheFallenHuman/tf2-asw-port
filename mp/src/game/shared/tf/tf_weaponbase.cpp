@@ -17,7 +17,7 @@
 // Client specific.
 #else
 #include "vgui/ISurface.h"
-#include "vgui_controls/Controls.h"
+#include "vgui_controls/controls.h"
 #include "c_tf_player.h"
 #include "tf_viewmodel.h"
 #include "hud_crosshair.h"
@@ -30,14 +30,13 @@
 #include "toolframework_client.h"
 
 // for spy material proxy
-#include "proxyentity.h"
-#include "materialsystem/imaterial.h"
-#include "materialsystem/imaterialvar.h"
+#include "ProxyEntity.h"
+#include "materialsystem/IMaterial.h"
+#include "materialsystem/IMaterialVar.h"
 
 extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 #endif
 
-ConVar tf_weapon_criticals( "tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Whether or not random crits are enabled." );
 extern ConVar tf_useparticletracers;
 
 //=============================================================================
@@ -117,16 +116,11 @@ BEGIN_NETWORK_TABLE( CTFWeaponBase, DT_TFWeaponBase )
 	SendPropBool( SENDINFO( m_bResetParity ) ),
 	SendPropInt( SENDINFO( m_iReloadMode ), 4, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bReloadedThroughAnimEvent ) ),
-
-	// World models have no animations so don't send these.
-	SendPropExclude( "DT_BaseAnimating", "m_nSequence" ),
-	SendPropExclude( "DT_AnimTimeMustBeFirst", "m_flAnimTime" ),
 #endif
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA( CTFWeaponBase )
+BEGIN_PREDICTION_DATA( CTFWeaponBase ) 
 #ifdef CLIENT_DLL
-	DEFINE_PRED_FIELD( m_nSequence, FIELD_INTEGER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE ),
 	DEFINE_PRED_FIELD( m_bLowered, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iReloadMode, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bReloadedThroughAnimEvent, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
@@ -478,9 +472,6 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 //-----------------------------------------------------------------------------
 bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 {
-	if ( !tf_weapon_criticals.GetBool() )
-		return false;
-
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
 		return false;
@@ -695,7 +686,7 @@ void CTFWeaponBase::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCh
 {
 	if ( (pEvent->type & AE_TYPE_NEWEVENTSYSTEM) /*&& (pEvent->type & AE_TYPE_SERVER)*/ )
 	{
-		if ( pEvent->event == AE_WPN_INCREMENTAMMO )
+		if ( pEvent->Event() == AE_WPN_INCREMENTAMMO )
 		{
 			if ( pOperator->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && !m_bReloadedThroughAnimEvent )
 			{
@@ -1329,17 +1320,17 @@ void CTFWeaponBase::CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nInd
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int	CTFWeaponBase::InternalDrawModel( int flags )
+int	CTFWeaponBase::InternalDrawModel( int flags, const RenderableInstance_t &instance )
 {
 	C_TFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
-	bool bNotViewModel = ( (pOwner && !pOwner->IsLocalPlayer()) || C_BasePlayer::ShouldDrawLocalPlayer() );
+	bool bNotViewModel = ( (pOwner && !pOwner->IsLocalPlayer()) || C_BasePlayer::GetLocalPlayer() );
 	bool bUseInvulnMaterial = (bNotViewModel && pOwner && pOwner->m_Shared.InCond( TF_COND_INVULNERABLE ));
 	if ( bUseInvulnMaterial )
 	{
 		modelrender->ForcedMaterialOverride( *pOwner->GetInvulnMaterialRef() );
 	}
 
-	int ret = BaseClass::InternalDrawModel( flags );
+	int ret = BaseClass::InternalDrawModel( flags, instance );
 
 	if ( bUseInvulnMaterial )
 	{
@@ -1357,7 +1348,7 @@ void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
 	if ( pOwner == NULL )
 		return;
 
-	bool bDrawMuzzleFlashOnViewModel = ( pOwner->IsLocalPlayer() && !C_BasePlayer::ShouldDrawLocalPlayer() ) ||
+	bool bDrawMuzzleFlashOnViewModel = ( pOwner->IsLocalPlayer() && !C_BasePlayer::GetLocalPlayer() ) ||
 		( IsLocalPlayerSpectator() && GetSpectatorMode() == OBS_MODE_IN_EYE && GetSpectatorTarget() == pOwner->entindex() );
 
 	if ( bDrawMuzzleFlashOnViewModel )
@@ -1466,19 +1457,6 @@ void CTFWeaponBase::OnDataChanged( DataUpdateType_t type )
 //-----------------------------------------------------------------------------
 // Purpose:
 // ----------------------------------------------------------------------------
-int CTFWeaponBase::CalcOverrideModelIndex( void )
-{
-	if ( ShouldDrawUsingViewModel() )
-	{
-		return m_iViewModelIndex;
-	}
-
-	return GetWorldModelIndex();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-// ----------------------------------------------------------------------------
 int CTFWeaponBase::GetWorldModelIndex( void )
 {
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
@@ -1517,7 +1495,7 @@ bool CTFWeaponBase::ShouldDrawCrosshair( void )
 
 void CTFWeaponBase::Redraw()
 {
-	if ( ShouldDrawCrosshair() && g_pClientMode->ShouldDrawCrosshair() )
+	if ( ShouldDrawCrosshair() && GetClientMode()->ShouldDrawCrosshair() )
 	{
 		DrawCrosshair();
 	}
@@ -1737,7 +1715,7 @@ acttable_t CTFWeaponBase::m_acttablePDA[] =
 
 ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLICATED|FCVAR_DEVELOPMENTONLY );
 
-acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
+acttable_t *CTFWeaponBase::ActivityList( void )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
@@ -1767,27 +1745,56 @@ acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 	case TF_WPN_TYPE_PRIMARY:
 	default:
 		pTable = m_acttablePrimary;
-		iActivityCount = ARRAYSIZE(m_acttablePrimary);
 		break;
 	case TF_WPN_TYPE_SECONDARY:
 		pTable = m_acttableSecondary;
-		iActivityCount = ARRAYSIZE(m_acttableSecondary);
 		break;
 	case TF_WPN_TYPE_MELEE:
 		pTable = m_acttableMelee;
-		iActivityCount = ARRAYSIZE(m_acttableMelee);
 		break;
 	case TF_WPN_TYPE_BUILDING:
 		pTable = m_acttableBuilding;
-		iActivityCount = ARRAYSIZE(m_acttableBuilding);
 		break;
 	case TF_WPN_TYPE_PDA:
 		pTable = m_acttablePDA;
-		iActivityCount = ARRAYSIZE(m_acttablePDA);
 		break;
 	}
 
 	return pTable;
+}
+
+int CTFWeaponBase::ActivityListCount( void )
+{
+	int iWeaponRole = 0;
+
+	if ( mp_forceactivityset.GetInt() >= 0 )
+	{
+		iWeaponRole = mp_forceactivityset.GetInt();
+	}
+
+	int iSize = 0;
+
+	switch( iWeaponRole )
+	{
+	case TF_WPN_TYPE_PRIMARY:
+	default:
+		iSize = ARRAYSIZE(m_acttablePrimary);
+		break;
+	case TF_WPN_TYPE_SECONDARY:
+		iSize = ARRAYSIZE(m_acttableSecondary);
+		break;
+	case TF_WPN_TYPE_MELEE:
+		iSize = ARRAYSIZE(m_acttableMelee);
+		break;
+	case TF_WPN_TYPE_BUILDING:
+		iSize = ARRAYSIZE(m_acttableBuilding);
+		break;
+	case TF_WPN_TYPE_PDA:
+		iSize = ARRAYSIZE(m_acttablePDA);
+		break;
+	}
+
+	return iSize;
 }
 
 
@@ -2094,17 +2101,6 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 	}
 
 	return BaseClass::OnFireEvent( pViewModel, origin, angles, event, options );
-}
-
-ShadowType_t CTFWeaponBase::ShadowCastType( void )
-{
-	if ( IsEffectActive( EF_NODRAW | EF_NOSHADOW ) )
-		return SHADOWS_NONE;
-
-	if ( m_iState == WEAPON_IS_CARRIED_BY_PLAYER )
-		return SHADOWS_NONE;
-
-	return BaseClass::ShadowCastType();
 }
 
 //-----------------------------------------------------------------------------

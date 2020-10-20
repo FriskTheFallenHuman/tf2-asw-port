@@ -8,10 +8,6 @@
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "tier2/tier2.h"
 
-#ifdef CLIENT_DLL
-bool UseHWMorphModels();
-#endif
-
 
 #define TF_CLASS_UNDEFINED_FILE			""
 #define TF_CLASS_SCOUT_FILE				"scripts/playerclasses/scout"
@@ -41,6 +37,12 @@ const char *s_aPlayerClassFiles[] =
 };
 
 TFPlayerClassData_t s_aTFPlayerClassData[TF_CLASS_COUNT_ALL];
+
+#ifdef CLIENT_DLL
+extern ConVar mp_usehwmmodels;
+#endif
+
+extern bool UseHWMorphModels();
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor

@@ -37,7 +37,7 @@ END_NETWORK_TABLE()
 #ifdef GAME_DLL
 
 BEGIN_DATADESC( CTFBaseProjectile )
-	DEFINE_ENTITYFUNC( ProjectileTouch ),
+	//DEFINE_FUNCTION( ProjectileTouch ),
 	DEFINE_THINKFUNC( FlyThink ),
 END_DATADESC()
 
@@ -166,6 +166,27 @@ CTFBaseProjectile *CTFBaseProjectile::Create( const char *pszClassname, const Ve
 
 	if ( pszDispatchEffect )
 	{
+		// we'd like to just send this projectile to a person in the shooter's PAS. However 
+		// the projectile won't be sent to a player outside of water if shot from inside water
+		// and vice-versa, so we do a trace here to figure out if the trace starts or stops in water.
+		// if it crosses contents, we'll just broadcast the projectile. Otherwise, just send to PVS
+		// of the trace's endpoint. 
+		trace_t tr;
+		UTIL_TraceLine( vecOrigin, vecOrigin + vecForward * MAX_COORD_RANGE, (CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_WINDOW|CONTENTS_GRATE), pOwner, COLLISION_GROUP_NONE, &tr );
+		bool bBroadcast = ( UTIL_PointContents( vecOrigin, MASK_ALL ) != UTIL_PointContents( tr.endpos, MASK_ALL ) );
+		IRecipientFilter *pFilter;
+		if ( bBroadcast )
+		{
+			// The projectile is going to cross content types 
+			// (which will block PVS/PAS). Send to every client
+			pFilter = new CReliableBroadcastRecipientFilter();
+		}
+		else
+		{
+			// just the PVS of where the projectile will hit.
+			pFilter = new CPASFilter( tr.endpos );
+		}
+
 		CEffectData data;
 		data.m_vOrigin = vecOrigin;
 		data.m_vStart = vecVelocity;
@@ -239,13 +260,13 @@ void CTFBaseProjectile::PostDataUpdate( DataUpdateType_t type )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CTFBaseProjectile::DrawModel( int flags )
+int CTFBaseProjectile::DrawModel( int flags, const RenderableInstance_t &instance )
 {
 	// During the first 0.2 seconds of our life, don't draw ourselves.
 	if ( gpGlobals->curtime - m_flSpawnTime < 0.1f )
 		return 0;
 
-	return BaseClass::DrawModel( flags );
+	return BaseClass::DrawModel( flags, instance );
 }
 
 //-----------------------------------------------------------------------------

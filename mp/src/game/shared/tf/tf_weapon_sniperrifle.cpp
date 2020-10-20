@@ -14,15 +14,12 @@
 #include "beamdraw.h"
 #include "vgui/ISurface.h"
 #include <vgui/ILocalize.h>
-#include "vgui_controls/Controls.h"
+#include "vgui_controls/controls.h"
 #include "hud_crosshair.h"
-#include "functionproxy.h"
-#include "materialsystem/imaterialvar.h"
+#include "FunctionProxy.h"
+#include "materialsystem/IMaterialVar.h"
 #include "toolframework_client.h"
 #include "input.h"
-
-// forward declarations
-void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 #endif
 
 #define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC	50.0
@@ -142,7 +139,7 @@ bool CTFSniperRifle::Reload( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFSniperRifle::CanHolster( void ) const
+bool CTFSniperRifle::CanHolster( void )
 {
  	CTFPlayer *pPlayer = GetTFPlayerOwner();
  	if ( pPlayer )
@@ -704,10 +701,10 @@ void CProxySniperRifleCharge::OnBind( void *pC_BaseEntity )
 		}
 	}
 
-	if ( ToolsEnabled() )
+	/*if ( ToolsEnabled() )
 	{
 		ToolFramework_RecordMaterialParams( GetMaterial() );
-	}
+	}*/
 }
 
 EXPOSE_INTERFACE( CProxySniperRifleCharge, IMaterialProxy, "SniperRifleCharge" IMATERIAL_PROXY_INTERFACE_VERSION );

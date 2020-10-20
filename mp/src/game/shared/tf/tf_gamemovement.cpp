@@ -64,7 +64,7 @@ public:
 	virtual void CategorizePosition( void );
 	virtual void CheckFalling( void );
 	virtual void Duck( void );
-	virtual Vector GetPlayerViewOffset( bool ducked ) const;
+	virtual const Vector& GetPlayerViewOffset( bool ducked ) const;
 
 	virtual void	TracePlayerBBox( const Vector& start, const Vector& end, unsigned int fMask, int collisionGroup, trace_t& pm );
 	virtual CBaseHandle	TestPlayerPosition( const Vector& pos, int collisionGroup, trace_t& pm );
@@ -153,7 +153,7 @@ void CTFGameMovement::PlayerMove()
 	}
 }
 
-Vector CTFGameMovement::GetPlayerViewOffset( bool ducked ) const
+const Vector& CTFGameMovement::GetPlayerViewOffset( bool ducked ) const
 {
 	return ducked ? VEC_DUCK_VIEW : ( m_pTFPlayer->GetClassEyeHeight() );
 }
@@ -194,12 +194,12 @@ void CTFGameMovement::ProcessMovement( CBasePlayer *pBasePlayer, CMoveData *pMov
 		return;
 
 	// Reset point contents for water check.
-	ResetGetPointContentsCache();
+	ResetGetWaterContentsForPointCache();
 
 	// Cropping movement speed scales mv->m_fForwardSpeed etc. globally
 	// Once we crop, we don't want to recursively crop again, so we set the crop
 	// flag globally here once per usercmd cycle.
-	m_iSpeedCropped = SPEED_CROPPED_RESET;
+	m_bSpeedCropped = false;
 
 	// Get the current TF player.
 	m_pTFPlayer = ToTFPlayer( pBasePlayer );
@@ -366,7 +366,7 @@ bool CTFGameMovement::CheckJumpButton()
 	}
 
 	// Cannot jump while in the unduck transition.
-	if ( ( player->m_Local.m_bDucking && (  player->GetFlags() & FL_DUCKING ) ) || ( player->m_Local.m_flDuckJumpTime > 0.0f ) )
+	if ( ( player->m_Local.m_bDucking && (  player->GetFlags() & FL_DUCKING ) ) || ( player->m_Local.m_nDuckJumpTimeMsecs > 0.0f ) )
 		return false;
 
 	// Cannot jump again until the jump button has been released.
@@ -462,7 +462,7 @@ bool CTFGameMovement::CheckWater( void )
 	int wt = CONTENTS_EMPTY;
 
 	// Check to see if our feet are underwater.
-	int nContents = GetPointContentsCached( vecPoint, 0 );	
+	int nContents = GetWaterContentsForPointCached( vecPoint, 0 );	
 	if ( nContents & MASK_WATER )
 	{
 		// Clear our jump flag, because we have landed in water.
@@ -476,7 +476,7 @@ bool CTFGameMovement::CheckWater( void )
 
 		// Now check eyes
 		vecPoint.z = mv->GetAbsOrigin().z + player->GetViewOffset()[2];
-		nContents = GetPointContentsCached( vecPoint, 1 );
+		nContents = GetWaterContentsForPointCached( vecPoint, 1 );
 		if ( nContents & MASK_WATER )
 		{
 			// In over our eyes
@@ -488,7 +488,7 @@ bool CTFGameMovement::CheckWater( void )
 		{
 			// Now check a point that is at the player hull midpoint (waist) and see if that is underwater.
 			vecPoint.z = flWaistZ;
-			nContents = GetPointContentsCached( vecPoint, 2 );
+			nContents = GetWaterContentsForPointCached( vecPoint, 2 );
 			if ( nContents & MASK_WATER )
 			{
 				// Set the water level at our waist.
@@ -881,9 +881,9 @@ void CTFGameMovement::AirMove( void )
 	VectorSubtract( mv->m_vecVelocity, player->GetBaseVelocity(), mv->m_vecVelocity );
 }
 
-extern void TracePlayerBBoxForGround( const Vector& start, const Vector& end, const Vector& minsSrc,
-							  const Vector& maxsSrc, IHandleEntity *player, unsigned int fMask,
-							  int collisionGroup, trace_t& pm );
+void TracePlayerBBoxForGround( ITraceListData *pTraceListData, const Vector& start, const Vector& end, const Vector& minsSrc,
+							  const Vector& maxsSrc, unsigned int fMask,
+							  ITraceFilter *filter, trace_t& pm, float minGroundNormalZ, bool overwriteEndpos, int *pCounter );
 
 
 //-----------------------------------------------------------------------------
@@ -1013,11 +1013,14 @@ void CTFGameMovement::CategorizePosition( void )
 	trace_t trace;
 	TracePlayerBBox( vecStartPos, vecEndPos, PlayerSolidMask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace );
 
+	float flStandableZ = 0.7;
+
 	// Steep plane, not on ground.
-	if ( trace.plane.normal.z < 0.7f )
+	if ( trace.plane.normal.z < flStandableZ )
 	{
 		// Test four sub-boxes, to see if any of them would have found shallower slope we could actually stand on.
-		TracePlayerBBoxForGround( vecStartPos, vecEndPos, GetPlayerMins(), GetPlayerMaxs(), mv->m_nPlayerHandle.Get(), PlayerSolidMask(), COLLISION_GROUP_PLAYER_MOVEMENT, trace );
+		ITraceFilter *pFilter = LockTraceFilter( COLLISION_GROUP_PLAYER_MOVEMENT );
+		TracePlayerBBoxForGround( m_pTraceListData, vecStartPos, vecEndPos, GetPlayerMins(), GetPlayerMaxs(), PlayerSolidMask(), pFilter, trace, flStandableZ, true, &m_nTraceCount);
 		if ( trace.plane.normal[2] < 0.7f )
 		{
 			// Too steep.

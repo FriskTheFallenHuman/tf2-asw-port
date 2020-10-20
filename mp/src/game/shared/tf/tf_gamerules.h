@@ -109,6 +109,13 @@ public:
 
 #ifdef GAME_DLL
 public:
+	//response rules
+	struct ResponseRules_t
+	{
+		CUtlVector<IResponseSystem*> m_ResponseSystems;
+	};
+	CUtlVector<ResponseRules_t>	m_ResponseRules;
+
 	// Override this to prevent removal of game specific entities that need to persist
 	virtual bool	RoundCleanupShouldIgnore( CBaseEntity *pEnt );
 	virtual bool	ShouldCreateEntity( const char *pszClassName );
@@ -201,8 +208,6 @@ public:
 
 	const char *GetTeamGoalString( int iTeam );
 
-	virtual bool	IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer ) { return true; }
-
 #ifdef CLIENT_DLL
 
 	DECLARE_CLIENTCLASS_NOBASE(); // This makes data tables able to access our private vars.
@@ -226,8 +231,9 @@ public:
 	bool CheckTimeLimit();
 	bool CheckWinLimit();
 	bool CheckCapsPerRound();
+	void CheckRespawnWaves();
 
-	virtual bool FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info );
+	virtual bool FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker );
 
 	// Spawing rules.
 	CBaseEntity *GetPlayerSpawnSpot( CBasePlayer *pPlayer );
@@ -239,7 +245,6 @@ public:
 
 	virtual const char *GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer );
 	void ClientSettingsChanged( CBasePlayer *pPlayer );
-	void ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValues );
 	void ChangePlayerName( CTFPlayer *pPlayer, const char *pszNewName );
 
 	virtual VoiceCommandMenuItem_t *VoiceCommand( CBaseMultiplayerPlayer *pPlayer, int iMenu, int iItem ); 
@@ -304,7 +309,6 @@ private:
 	int m_iPrevRoundState;	// bit string representing the state of the points at the start of the previous miniround
 	int m_iCurrentRoundState;
 	int m_iCurrentMiniRoundMask;
-	float m_flTimerMayExpireAt;
 
 #endif
 

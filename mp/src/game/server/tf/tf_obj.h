@@ -360,6 +360,4 @@ private:
 	CNetworkVar( bool, m_bServerOverridePlacement );
 };
 
-extern short g_sModelIndexFireball;		// holds the index for the fireball
-
 #endif // TF_OBJ_H

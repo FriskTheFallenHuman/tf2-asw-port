@@ -149,7 +149,8 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void SetWeaponVisible( bool visible );
 
-	virtual acttable_t *ActivityList( int &iActivityCount );
+	virtual acttable_t *ActivityList( void );
+	virtual int ActivityListCount( void );
 	static acttable_t m_acttablePrimary[];
 	static acttable_t m_acttableSecondary[];
 	static acttable_t m_acttableMelee[];
@@ -213,19 +214,17 @@ class CTFWeaponBase : public CBaseCombatWeapon
 #else
 
 	virtual void	ProcessMuzzleFlashEvent( void );
-	virtual int		InternalDrawModel( int flags );
+	virtual int		InternalDrawModel( int flags, const RenderableInstance_t &instance );
 
 	virtual bool	ShouldPredict();
 	virtual void	OnDataChanged( DataUpdateType_t type );
 	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
-	virtual int		CalcOverrideModelIndex( void );
 	virtual int		GetWorldModelIndex( void );
 	virtual bool	ShouldDrawCrosshair( void );
 	virtual void	Redraw( void );
 
 	virtual void	AddViewmodelBob( CBaseViewModel *viewmodel, Vector &origin, QAngle &angles );
 	virtual	float	CalcViewmodelBob( void );
-	virtual ShadowType_t	ShadowCastType( void );
 	virtual int		GetSkin();
 	BobState_t		*GetBobState();
 

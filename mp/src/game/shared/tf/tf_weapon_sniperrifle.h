@@ -48,7 +48,7 @@ public:
 
 	// Rendering.
 	virtual bool			IsTransparent( void )		{ return true; }
-	virtual RenderGroup_t	GetRenderGroup( void )		{ return RENDER_GROUP_TRANSLUCENT_ENTITY; }
+	virtual RenderGroup_t	GetRenderGroup( void )		{ return RENDER_GROUP_TRANSLUCENT; }
 	virtual int				DrawModel( int flags );
 	virtual bool			ShouldDraw( void );
 
@@ -89,7 +89,7 @@ public:
 	void		 ResetTimers( void );
 
 	virtual bool Reload( void );
-	virtual bool CanHolster( void ) const;
+	virtual bool CanHolster( void );
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo );
 
 	void		 HandleZooms( void );

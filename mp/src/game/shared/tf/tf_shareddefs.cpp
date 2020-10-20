@@ -316,22 +316,6 @@ const char *WeaponIdToAlias( int iWeapon )
 	return g_aWeaponNames[iWeapon];
 }
 
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-const char *WeaponIdToClassname( int iWeapon )
-{
-	const char *pszAlias = WeaponIdToAlias( iWeapon );
-	if ( pszAlias == NULL )
-		return NULL;
-
-	static char szClassname[128];
-	V_strncpy( szClassname, pszAlias, sizeof( szClassname ) );
-	V_strlower( szClassname );
-
-	return szClassname;
-}
-
 #ifdef GAME_DLL
 
 //-----------------------------------------------------------------------------
@@ -448,6 +432,25 @@ int GetBuildableId( const char *pszBuildableName )
 
 	return OBJ_LAST;
 }
+
+/*char* ReadAndAllocStringValue( KeyValues *pSub, const char *pName, const char *pFilename = NULL )
+{
+	const char *pValue = pSub->GetString( pName, NULL );
+	if ( !pValue )
+	{
+		if ( pFilename )
+		{
+			DevWarning( "Can't get key value	'%s' from file '%s'.\n", pName, pFilename );
+		}
+		return "";
+	}
+
+	int len = Q_strlen( pValue ) + 1;
+	char *pAlloced = new char[ len ];
+	Assert( pAlloced );
+	Q_strncpy( pAlloced, pValue, len );
+	return pAlloced;
+}*/
 
 
 bool AreObjectInfosLoaded()

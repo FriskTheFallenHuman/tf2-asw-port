@@ -77,7 +77,7 @@ class CAchievementTFPlayGameEveryClass : public CTFAchievementFullRound
 
 	virtual void Event_OnRoundComplete( float flRoundTime, IGameEvent *event )
 	{
-		float flLastClassChangeTime = m_pAchievementMgr->GetLastClassChangeTime();
+		float flLastClassChangeTime = m_pAchievementMgr->GetLastClassChangeTime(0);
 		if ( flLastClassChangeTime > 0 ) 
 		{					
 			// has the player been present and not changed class since the start of this round (minus a grace period)?
@@ -98,7 +98,7 @@ class CAchievementTFPlayGameEveryClass : public CTFAchievementFullRound
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFPlayGameEveryClass, ACHIEVEMENT_TF_PLAY_GAME_EVERYCLASS, "TF_PLAY_GAME_EVERYCLASS", 5 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFPlayGameEveryClass, ACHIEVEMENT_TF_PLAY_GAME_EVERYCLASS, "TF_PLAY_GAME_EVERYCLASS", 5, 10 );
 
 class CAchievementTFPlayGameEveryMap : public CTFAchievementFullRound
 {
@@ -123,7 +123,7 @@ class CAchievementTFPlayGameEveryMap : public CTFAchievementFullRound
 
 	virtual void Event_OnRoundComplete( float flRoundTime, IGameEvent *event )
 	{
-		float flTeamplayStartTime = m_pAchievementMgr->GetTeamplayStartTime();
+		float flTeamplayStartTime = m_pAchievementMgr->GetTeamplayStartTime(0);
 		if ( flTeamplayStartTime > 0 ) 
 		{	
 			// has the player been present and on a game team since the start of this round (minus a grace period)?
@@ -135,7 +135,7 @@ class CAchievementTFPlayGameEveryMap : public CTFAchievementFullRound
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFPlayGameEveryMap, ACHIEVEMENT_TF_PLAY_GAME_EVERYMAP, "TF_PLAY_GAME_EVERYMAP", 5 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFPlayGameEveryMap, ACHIEVEMENT_TF_PLAY_GAME_EVERYMAP, "TF_PLAY_GAME_EVERYMAP", 5, 20 );
 
 class CAchievementTFGetHealPoints : public CBaseAchievement
 {
@@ -152,7 +152,7 @@ class CAchievementTFGetHealPoints : public CBaseAchievement
 		m_iCount = classStats.accumulated.m_iStat[TFSTAT_HEALING];
 		if ( m_iCount != iOldCount )
 		{
-			m_pAchievementMgr->SetDirty( true );
+			m_pAchievementMgr->SetDirty( true, 0 );
 		}
 
 		if ( IsLocalTFPlayerClass( TF_CLASS_MEDIC ) )
@@ -161,7 +161,7 @@ class CAchievementTFGetHealPoints : public CBaseAchievement
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFGetHealPoints, ACHIEVEMENT_TF_GET_HEALPOINTS, "TF_GET_HEALPOINTS", 5 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFGetHealPoints, ACHIEVEMENT_TF_GET_HEALPOINTS, "TF_GET_HEALPOINTS", 5, 30 );
 
 class CAchievementTFBurnPlayersInMinimumTime : public CBaseAchievement
 {
@@ -172,7 +172,7 @@ class CAchievementTFBurnPlayersInMinimumTime : public CBaseAchievement
 	}
 	// server fires an event for this achievement, no other code within achievement necessary
 };
-DECLARE_ACHIEVEMENT( CAchievementTFBurnPlayersInMinimumTime, ACHIEVEMENT_TF_BURN_PLAYERSINMINIMIMTIME, "TF_BURN_PLAYERSINMINIMUMTIME", 5 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFBurnPlayersInMinimumTime, ACHIEVEMENT_TF_BURN_PLAYERSINMINIMIMTIME, "TF_BURN_PLAYERSINMINIMUMTIME", 5, 40 );
 
 class CAchievementTFGetTurretKills : public CBaseAchievement
 {
@@ -183,7 +183,7 @@ class CAchievementTFGetTurretKills : public CBaseAchievement
 	}
 	// server fires an event for this achievement, no other code within achievement necessary
 };
-DECLARE_ACHIEVEMENT( CAchievementTFGetTurretKills, ACHIEVEMENT_TF_GET_TURRETKILLS, "TF_GET_TURRETKILLS", 5 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFGetTurretKills, ACHIEVEMENT_TF_GET_TURRETKILLS, "TF_GET_TURRETKILLS", 5, 50 );
 
 class CAchievementTFGetHeadshots: public CBaseAchievement
 {
@@ -212,7 +212,7 @@ class CAchievementTFGetHeadshots: public CBaseAchievement
 		m_iCount = classStats.accumulated.m_iStat[TFSTAT_HEADSHOTS];
 		if ( m_iCount != iOldCount )
 		{
-			m_pAchievementMgr->SetDirty( true );
+			m_pAchievementMgr->SetDirty( true, 0 );
 		}
 
 		if ( IsLocalTFPlayerClass( TF_CLASS_SNIPER ) )
@@ -221,7 +221,7 @@ class CAchievementTFGetHeadshots: public CBaseAchievement
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFGetHeadshots, ACHIEVEMENT_TF_GET_HEADSHOTS, "TF_GET_HEADSHOTS", 5 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFGetHeadshots, ACHIEVEMENT_TF_GET_HEADSHOTS, "TF_GET_HEADSHOTS", 5, 50 );
 
 class CAchievementTFKillNemesis : public CBaseAchievement
 {
@@ -253,7 +253,7 @@ class CAchievementTFKillNemesis : public CBaseAchievement
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFKillNemesis, ACHIEVEMENT_TF_KILL_NEMESIS, "TF_KILL_NEMESIS", 5 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFKillNemesis, ACHIEVEMENT_TF_KILL_NEMESIS, "TF_KILL_NEMESIS", 5, 60 );
 
 class CAchievementTFGetConsecutiveKillsNoDeaths : public CBaseAchievement
 {
@@ -282,7 +282,7 @@ class CAchievementTFGetConsecutiveKillsNoDeaths : public CBaseAchievement
 	}
 	int m_iConsecutiveKills;
 };
-DECLARE_ACHIEVEMENT( CAchievementTFGetConsecutiveKillsNoDeaths, ACHIEVEMENT_TF_GET_CONSECUTIVEKILLS_NODEATHS, "TF_GET_CONSECUTIVEKILLS_NODEATHS", 10 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFGetConsecutiveKillsNoDeaths, ACHIEVEMENT_TF_GET_CONSECUTIVEKILLS_NODEATHS, "TF_GET_CONSECUTIVEKILLS_NODEATHS", 10, 70 );
 
 class CAchievementTFGetHealedByEnemy: public CBaseAchievement
 {
@@ -293,7 +293,7 @@ class CAchievementTFGetHealedByEnemy: public CBaseAchievement
 	}
 	// server fires an event for this achievement, no other code within achievement necessary
 };
-DECLARE_ACHIEVEMENT( CAchievementTFGetHealedByEnemy, ACHIEVEMENT_TF_GET_HEALED_BYENEMY, "TF_GET_HEALED_BYENEMY", 15 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFGetHealedByEnemy, ACHIEVEMENT_TF_GET_HEALED_BYENEMY, "TF_GET_HEALED_BYENEMY", 15, 80 );
 
 class CAchievementTFPlayGameFriendsOnly : public CBaseAchievement
 {
@@ -320,7 +320,7 @@ class CAchievementTFPlayGameFriendsOnly : public CBaseAchievement
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFPlayGameFriendsOnly, ACHIEVEMENT_TF_PLAY_GAME_FRIENDSONLY, "TF_PLAY_GAME_FRIENDSONLY", 10 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFPlayGameFriendsOnly, ACHIEVEMENT_TF_PLAY_GAME_FRIENDSONLY, "TF_PLAY_GAME_FRIENDSONLY", 10, 90 );
 
 class CAchievementTFWinMultipleGames : public CTFAchievementFullRound
 {
@@ -347,7 +347,7 @@ class CAchievementTFWinMultipleGames : public CTFAchievementFullRound
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFWinMultipleGames, ACHIEVEMENT_TF_WIN_MULTIPLEGAMES, "TF_WIN_MULTIPLEGAMES", 10 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFWinMultipleGames, ACHIEVEMENT_TF_WIN_MULTIPLEGAMES, "TF_WIN_MULTIPLEGAMES", 10, 100 );
 
 class CAchievementTFGetMultipleKills : public CBaseAchievement
 {
@@ -374,13 +374,13 @@ class CAchievementTFGetMultipleKills : public CBaseAchievement
 		m_iCount = iKills;
 		if ( m_iCount != iOldCount )
 		{
-			m_pAchievementMgr->SetDirty( true );
+			m_pAchievementMgr->SetDirty( true, 0 );
 		}
 
 		EvaluateNewAchievement();
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFGetMultipleKills, ACHIEVEMENT_TF_GET_MULTIPLEKILLS, "TF_GET_MULTIPLEKILLS", 15 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFGetMultipleKills, ACHIEVEMENT_TF_GET_MULTIPLEKILLS, "TF_GET_MULTIPLEKILLS", 15, 110 );
 
 class CAchievementTFWin2FortNoEnemyCaps : public CBaseAchievement
 {
@@ -415,7 +415,7 @@ class CAchievementTFWin2FortNoEnemyCaps : public CBaseAchievement
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFWin2FortNoEnemyCaps, ACHIEVEMENT_TF_WIN_2FORT_NOENEMYCAPS, "TF_WIN_2FORT_NOENEMYCAPS", 5 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFWin2FortNoEnemyCaps, ACHIEVEMENT_TF_WIN_2FORT_NOENEMYCAPS, "TF_WIN_2FORT_NOENEMYCAPS", 5, 120 );
 
 class CAchievementTFWinWellMinimumTime : public CBaseAchievement
 {
@@ -446,7 +446,7 @@ class CAchievementTFWinWellMinimumTime : public CBaseAchievement
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFWinWellMinimumTime, ACHIEVEMENT_TF_WIN_WELL_MINIMUMTIME, "TF_WIN_WELL_MINIMUMTIME", 10 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFWinWellMinimumTime, ACHIEVEMENT_TF_WIN_WELL_MINIMUMTIME, "TF_WIN_WELL_MINIMUMTIME", 10, 130 );
 
 class CAchievementTFWinHydroNoEnemyCaps : public CBaseAchievement
 {
@@ -466,13 +466,13 @@ class CAchievementTFWinHydroNoEnemyCaps : public CBaseAchievement
 	{
 		// winning hydro with no enemy caps means there were 2 previous minirounds completed (3 total for a shutout)
 		// and local player's team won the final round
-		if ( ( 2 == m_pAchievementMgr->GetMiniroundsCompleted() ) && ( CheckWinNoEnemyCaps( event, TEAM_ROLE_NONE ) ) )
+		if ( ( 2 == m_pAchievementMgr->GetMiniroundsCompleted(0) ) && ( CheckWinNoEnemyCaps( event, TEAM_ROLE_NONE ) ) )
 		{
 			IncrementCount();
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFWinHydroNoEnemyCaps, ACHIEVEMENT_TF_WIN_HYDRO_NOENEMYCAPS, "TF_WIN_HYDRO_NOENEMYCAPS", 20 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFWinHydroNoEnemyCaps, ACHIEVEMENT_TF_WIN_HYDRO_NOENEMYCAPS, "TF_WIN_HYDRO_NOENEMYCAPS", 20, 140 );
 
 class CAchievementTFWinDustbowlNoEnemyCaps : public CBaseAchievement
 {
@@ -492,13 +492,13 @@ class CAchievementTFWinDustbowlNoEnemyCaps : public CBaseAchievement
 	{
 		// defending dustbowl with no enemy caps means there were no previous minirounds completed (that would be an attacker capture),
 		// the player was on the defending team and they won with no enemy caps
-		if ( ( 0 == m_pAchievementMgr->GetMiniroundsCompleted() ) && CheckWinNoEnemyCaps( event, TEAM_ROLE_DEFENDERS ) )
+		if ( ( 0 == m_pAchievementMgr->GetMiniroundsCompleted(0) ) && CheckWinNoEnemyCaps( event, TEAM_ROLE_DEFENDERS ) )
 		{
 			IncrementCount();
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFWinDustbowlNoEnemyCaps, ACHIEVEMENT_TF_WIN_DUSTBOWL_NOENEMYCAPS, "TF_WIN_DUSTBOWL_NOENEMYCAPS", 10 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFWinDustbowlNoEnemyCaps, ACHIEVEMENT_TF_WIN_DUSTBOWL_NOENEMYCAPS, "TF_WIN_DUSTBOWL_NOENEMYCAPS", 10, 150 );
 
 class CAchievementTFWinGravelPitNoEnemyCaps : public CBaseAchievement
 {
@@ -523,7 +523,7 @@ class CAchievementTFWinGravelPitNoEnemyCaps : public CBaseAchievement
 		}
 	}
 };
-DECLARE_ACHIEVEMENT( CAchievementTFWinGravelPitNoEnemyCaps, ACHIEVEMENT_TF_WIN_GRAVELPIT_NOENEMYCAPS, "TF_WIN_GRAVELPIT_NOENEMYCAPS", 30 );
+DECLARE_ACHIEVEMENT_ORDER( CAchievementTFWinGravelPitNoEnemyCaps, ACHIEVEMENT_TF_WIN_GRAVELPIT_NOENEMYCAPS, "TF_WIN_GRAVELPIT_NOENEMYCAPS", 30, 160 );
 
 //-----------------------------------------------------------------------------
 // Purpose: see if a round win was a win for the local player with no enemy caps

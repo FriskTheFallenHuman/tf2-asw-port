@@ -88,9 +88,6 @@ ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_DEVELO
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
 extern ConVar sv_maxunlag;
-extern ConVar tf_damage_disablespread;
-extern ConVar tf_gravetalk;
-extern ConVar tf_spectalk;
 
 // -------------------------------------------------------------------------------- //
 // Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
@@ -201,13 +198,13 @@ END_SEND_TABLE()
 //			objectID - 
 //-----------------------------------------------------------------------------
 
-void* SendProxy_SendNonLocalDataTable( const SendProp *pProp, const void *pStruct, const void *pVarData, CSendProxyRecipients *pRecipients, int objectID )
+/*void* SendProxy_SendNonLocalDataTable( const SendProp *pProp, const void *pStruct, const void *pVarData, CSendProxyRecipients *pRecipients, int objectID )
 {
 	pRecipients->SetAllRecipients();
 	pRecipients->ClearRecipient( objectID - 1 );
 	return ( void * )pVarData;
 }
-REGISTER_SEND_PROXY_NON_MODIFIED_POINTER( SendProxy_SendNonLocalDataTable );
+REGISTER_SEND_PROXY_NON_MODIFIED_POINTER( SendProxy_SendNonLocalDataTable );*/
 
 //-----------------------------------------------------------------------------
 // Purpose: SendProxy that converts the UtlVector list of objects to entindexes, where it's reassembled on the client
@@ -447,11 +444,10 @@ CTFPlayer::~CTFPlayer()
 	m_PlayerAnimState->Release();
 }
 
-
 CTFPlayer *CTFPlayer::CreatePlayer( const char *className, edict_t *ed )
 {
 	CTFPlayer::s_PlayerEdict = ed;
-	return (CTFPlayer*)CreateEntityByName( className );
+	return (CTFPlayer* )CreateEntityByName( className );
 }
 
 //-----------------------------------------------------------------------------
@@ -1074,7 +1070,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		if ( pData->m_aWeapons[iWeapon] != TF_WEAPON_NONE )
 		{
 			int iWeaponID = pData->m_aWeapons[iWeapon];
-			const char *pszWeaponName = WeaponIdToClassname( iWeaponID );
+			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 
@@ -1340,7 +1336,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 
 		// if this join would unbalance the teams, refuse
 		// come up with a better way to tell the player they tried to join a full team!
-		if ( TFGameRules()->WouldChangeUnbalanceTeams( iTeam, GetTeamNumber() ) )
+		if ( TFGameRules()->WouldChangeUnbalanceTeams( 1, iTeam, GetTeamNumber() ) )
 		{
 			ShowViewPortPanel( PANEL_TEAM );
 			return;
@@ -2153,7 +2149,7 @@ void CTFPlayer::StartBuildingObjectOfType( int iType )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
+void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr )
 {
 	if ( m_takedamage != DAMAGE_YES )
 		return;
@@ -2164,7 +2160,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		// Prevent team damage here so blood doesn't appear
 		if ( info.GetAttacker()->IsPlayer() )
 		{
-			if ( !g_pGameRules->FPlayerCanTakeDamage( this, info.GetAttacker(), info ) )
+			if ( !g_pGameRules->FPlayerCanTakeDamage( this, info.GetAttacker() ) )
 				return;
 		}
 	}
@@ -2430,7 +2426,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// Make sure the player can take damage from the attacking entity
-	if ( !g_pGameRules->FPlayerCanTakeDamage( this, info.GetAttacker(), info ) )
+	if ( !g_pGameRules->FPlayerCanTakeDamage( this, info.GetAttacker() ) )
 	{
 		if ( bDebug )
 		{
@@ -2523,7 +2519,8 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				data.m_nEntIndex = 0;
 
 				CSingleUserRecipientFilter filter( (CBasePlayer*)info.GetAttacker() );
-				te->DispatchEffect( filter, 0.0, data.m_vOrigin, "ParticleEffect", data );
+				//te->DispatchEffect( filter, 0.0, data.m_vOrigin, "ParticleEffect", data );
+				DispatchEffect( "ParticleEffect", data );
 
 				EmitSound_t params;
 				params.m_flSoundTime = 0;
@@ -2549,14 +2546,13 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			{
 				float flMin = 0.25;
 				float flMax = 0.75;
-				float flCenter = 0.5;
 
 				if ( bitsDamage & DMG_USEDISTANCEMOD )
 				{
 					float flDistance = max( 1.0, (WorldSpaceCenter() - info.GetAttacker()->WorldSpaceCenter()).Length() );
 					float flOptimalDistance = 512.0;
 
-					flCenter = RemapValClamped( flDistance / flOptimalDistance, 0.0, 2.0, 1.0, 0.0 );
+					float flCenter = RemapValClamped( flDistance / flOptimalDistance, 0.0, 2.0, 1.0, 0.0 );
 					if ( bitsDamage & DMG_NOCLOSEDISTANCEMOD )
 					{
 						if ( flCenter > 0.5 )
@@ -2575,7 +2571,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				}
 
 				//Msg("Range: %.2f - %.2f\n", flMin, flMax );
-				float flRandomVal = tf_damage_disablespread.GetBool() ? flCenter : RandomFloat( flMin, flMax );
+				float flRandomVal = RandomFloat( flMin, flMax );
 
 				if ( flRandomVal > 0.5 )
 				{
@@ -3844,12 +3840,6 @@ bool CTFPlayer::SetObserverMode(int mode)
 	if ( mode < OBS_MODE_NONE || mode >= NUM_OBSERVER_MODES )
 		return false;
 
-	// Skip OBS_MODE_POI as we're not using that.
-	if ( mode == OBS_MODE_POI )
-	{
-		mode++;
-	}
-
 	// Skip over OBS_MODE_ROAMING for dead players
 	if( GetTeamNumber() > TEAM_SPECTATOR )
 	{
@@ -3857,7 +3847,7 @@ bool CTFPlayer::SetObserverMode(int mode)
 		{
 			mode = OBS_MODE_CHASE;
 		}
-		else if ( mode == OBS_MODE_ROAMING )
+		else if ( mode == OBS_MODE_ROAMING || ( mode > OBS_MODE_FIXED && mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
 		{
 			mode = OBS_MODE_IN_EYE;
 		}
@@ -4764,10 +4754,11 @@ void CTFPlayer::CreateRagdollEntity( bool bGib, bool bBurning )
 	SetMoveType( MOVETYPE_NONE );
 
 	// Add additional gib setup.
-	if ( bGib )
+	// TODO!!
+	/*if ( bGib )
 	{
 		m_nRenderFX = kRenderFxRagdoll;
-	}
+	}*/
 
 	// Save ragdoll handle.
 	m_hRagdoll = pRagdoll;
@@ -4895,7 +4886,10 @@ public:
 		if ( m_bDisabled )
 			return false;
 
-		if ( m_hAssociatedTeamEntity && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
+		if ( ( pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM ) && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
+			return false;
+
+		if ( m_hAssociatedTeamEntity && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) ) // TODO: OBS_ALLOW_TEAM_ALL
 		{
 			// If we don't own the associated team entity, we can't use this point
 			if ( m_hAssociatedTeamEntity->GetTeamNumber() != pPlayer->GetTeamNumber() && pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )
@@ -5086,9 +5080,10 @@ bool CTFPlayer::IsValidObserverTarget(CBaseEntity * target)
 		switch ( mp_forcecamera.GetInt() )	
 		{
 		case OBS_ALLOW_ALL		:	break;
-		case OBS_ALLOW_TEAM		:	if (target->GetTeamNumber() != TEAM_UNASSIGNED && GetTeamNumber() != target->GetTeamNumber())
+		case OBS_ALLOW_TEAM     :
+		/*case OBS_ALLOW_TEAM_ALL :	if ( target->GetTeamNumber() != TEAM_UNASSIGNED && GetTeamNumber() != target->GetTeamNumber() )
 										return false;
-									break;
+									break;*/
 		case OBS_ALLOW_NONE		:	return false;
 		}
 
@@ -5211,7 +5206,7 @@ CBaseEntity *CTFPlayer::FindNearestObservableTarget( Vector vecOrigin, float flM
 	{
 		// let's spectate our sentry instead, we didn't find any other engineers to spec
 		int iNumObjects = GetObjectCount();
-		for ( int i = 0; i < iNumObjects; i++ )
+		for ( int i=0;i<iNumObjects;i++ )
 		{
 			CBaseObject *pObj = GetObject(i);
 
@@ -5592,33 +5587,14 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 {
-	// can always hear the console unless we're ignoring all chat
-	if ( !pPlayer )
-		return m_iIgnoreGlobalChat != CHAT_IGNORE_ALL;
-
-	// check if we're ignoring all chat
-	if ( m_iIgnoreGlobalChat == CHAT_IGNORE_ALL )
-		return false;
-
-	// check if we're ignoring all but teammates
-	if ( m_iIgnoreGlobalChat == CHAT_IGNORE_TEAM && g_pGameRules->PlayerRelationship( this, pPlayer ) != GR_TEAMMATE )
-		return false;
-
-	if ( !pPlayer->IsAlive() && IsAlive() )
+	//Everyone can chat like normal when the round/game ends
+	if ( pPlayer->m_lifeState != LIFE_ALIVE && m_lifeState == LIFE_ALIVE )
 	{
-		// Everyone can chat like normal when the round/game ends
 		if ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN || TFGameRules()->State_Get() == GR_STATE_GAME_OVER )
 			return true;
-
-		// Separate rule for spectators.
-		if ( pPlayer->GetTeamNumber() < FIRST_GAME_TEAM )
-			return tf_spectalk.GetBool();
-
-		// Living players can't hear dead ones unless gravetalk is enabled.
-		return tf_gravetalk.GetBool();
 	}
 
-	return true;
+	return BaseClass::CanHearAndReadChatFrom( pPlayer);
 }
 
 //-----------------------------------------------------------------------------
@@ -5694,7 +5670,7 @@ bool CTFPlayer::SpeakConceptIfAllowed( int iConcept, const char *modifiers, char
 
 		m_bSpeakingConceptAsDisguisedSpy = true;
 
-		bool bPlayedDisguised = SpeakIfAllowed( g_pszMPConcepts[iConcept], buf, pszOutResponseChosen, bufsize, &disguisedFilter );
+		bool bPlayedDisguised = SpeakIfAllowed( g_pszMPConcepts[iConcept], SPEECH_PRIORITY_NORMAL, buf, pszOutResponseChosen, bufsize, &disguisedFilter );
 
 		m_bSpeakingConceptAsDisguisedSpy = false;
 
@@ -5704,7 +5680,7 @@ bool CTFPlayer::SpeakConceptIfAllowed( int iConcept, const char *modifiers, char
 		undisguisedFilter.RemoveRecipient( this );
 
 		// play normal concept to teammates
-		bool bPlayedNormally = SpeakIfAllowed( g_pszMPConcepts[iConcept], modifiers, pszOutResponseChosen, bufsize, &undisguisedFilter );
+		bool bPlayedNormally = SpeakIfAllowed( g_pszMPConcepts[iConcept], SPEECH_PRIORITY_NORMAL, modifiers, pszOutResponseChosen, bufsize, &undisguisedFilter );
 
 		pExpresser->DisallowMultipleScenes();
 
@@ -5713,7 +5689,7 @@ bool CTFPlayer::SpeakConceptIfAllowed( int iConcept, const char *modifiers, char
 	else
 	{
 		// play normally
-		bReturn = SpeakIfAllowed( g_pszMPConcepts[iConcept], modifiers, pszOutResponseChosen, bufsize, filter );
+		bReturn = SpeakIfAllowed( g_pszMPConcepts[iConcept], SPEECH_PRIORITY_NORMAL, modifiers, pszOutResponseChosen, bufsize, filter );
 	}
 
 	//Add bubble on top of a player calling for medic.
@@ -5910,30 +5886,14 @@ int CTFPlayer::DrawDebugTextOverlays(void)
 //-----------------------------------------------------------------------------
 bool CTFPlayer::GetResponseSceneFromConcept( int iConcept, char *chSceneBuffer, int numSceneBufferBytes )
 {
-	AI_Response response;
-	bool bResult = SpeakConcept( response, iConcept );
-
-	if ( bResult )
+	AI_Response result;
+	SpeakConcept( result, iConcept );
+	if ( !result.IsEmpty() )
 	{
-		if ( response.IsApplyContextToWorld() )
-		{
-			CBaseEntity *pEntity = CBaseEntity::Instance( engine->PEntityOfEntIndex( 0 ) );
-			if ( pEntity )
-			{
-				pEntity->AddContext( response.GetContext() );
-			}
-		}
-		else
-		{
-			AddContext( response.GetContext() );
-		}
-
-		V_strncpy( chSceneBuffer, response.GetResponsePtr(), numSceneBufferBytes );
+		result.GetResponse( chSceneBuffer, numSceneBufferBytes );
 	}
-
-	return bResult;
+	return !result.IsEmpty();
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose:calculate a score for this player. higher is more likely to be switched
@@ -5955,10 +5915,9 @@ int	CTFPlayer::CalculateTeamBalanceScore( void )
 // Purpose: 
 //-----------------------------------------------------------------------------
 // Debugging Stuff
-extern CBaseEntity *FindPickerEntity( CBasePlayer *pPlayer );
 void DebugParticles( const CCommand &args )
 {
-	CBaseEntity *pEntity = FindPickerEntity( UTIL_GetCommandClient() );
+	CBaseEntity *pEntity = UTIL_GetCommandClient()->FindPickerEntity();
 
 	if ( pEntity && pEntity->IsPlayer() )
 	{
@@ -5987,7 +5946,7 @@ static ConCommand cc_IgnitePlayer( "tf_ignite_player", IgnitePlayer, "Sets you o
 //-----------------------------------------------------------------------------
 void TestVCD( const CCommand &args )
 {
-	CBaseEntity *pEntity = FindPickerEntity( UTIL_GetCommandClient() );
+	CBaseEntity *pEntity = UTIL_GetCommandClient()->FindPickerEntity();
 	if ( pEntity && pEntity->IsPlayer() )
 	{
 		CTFPlayer *pPlayer = ToTFPlayer( pEntity );
@@ -6028,7 +5987,7 @@ void TestRR( const CCommand &args )
 
 	if ( !pEntity || !pEntity->IsPlayer() )
 	{
-		pEntity = FindPickerEntity( UTIL_GetCommandClient() );
+		pEntity = UTIL_GetCommandClient()->FindPickerEntity();
 		if ( !pEntity || !pEntity->IsPlayer() )
 		{
 			pEntity = ToTFPlayer( UTIL_GetCommandClient() ); 

@@ -41,11 +41,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-
-extern CBaseEntity *FindPickerEntity( CBasePlayer *pPlayer );
-
 extern bool			g_fGameOver;
-
 
 void FinishClientPutInServer( CTFPlayer *pPlayer )
 {
@@ -101,6 +97,11 @@ void ClientActive( edict_t *pEdict, bool bLoadGame )
 }
 
 
+void ClientFullyConnect( edict_t *pEntity )
+{
+
+}
+
 /*
 ===============
 const char *GetGameDescription()
@@ -116,10 +117,36 @@ const char *GetGameDescription()
 		return "Team Fortress";
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Given a player and optional name returns the entity of that 
+//			classname that the player is nearest facing
+//			
+// Input  :
+// Output :
+//-----------------------------------------------------------------------------
+CBaseEntity* FindEntity( edict_t *pEdict, char *classname )
+{
+	// If no name was given set bits based on the picked
+	if (FStrEq(classname,"")) 
+	{
+		CBasePlayer *pPlayer = static_cast<CBasePlayer*>(GetContainingEntity(pEdict));
+		if ( pPlayer )
+		{
+			return pPlayer->FindPickerEntityClass( classname );
+		}
+	}
+	return NULL;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Precache game-specific models & sounds
 //-----------------------------------------------------------------------------
+PRECACHE_REGISTER_BEGIN( GLOBAL, ClientGamePrecache )
+	// Materials used by the client effects
+	PRECACHE( MODEL, "sprites/white.vmt" );
+	PRECACHE( MODEL, "sprites/physbeam.vmt" );
+PRECACHE_REGISTER_END()
+
 void ClientGamePrecache( void )
 {
 	const char *pFilename = "scripts/client_precache.txt";

@@ -71,7 +71,7 @@ static float WeightedAngle( Vector vec1, Vector vec2)
 }
 
 
-
+#ifndef TF_MOD
 static CHLTVDirector s_HLTVDirector;	// singleton
 
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CHLTVDirector, IHLTVDirector, INTERFACEVERSION_HLTVDIRECTOR, s_HLTVDirector );
@@ -85,10 +85,7 @@ IGameSystem* HLTVDirectorSystem()
 {
 	return &s_HLTVDirector;
 }
-
-
-
-
+#endif
 
 CHLTVDirector::CHLTVDirector()
 {

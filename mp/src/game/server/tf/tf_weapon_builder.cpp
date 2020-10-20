@@ -110,9 +110,6 @@ bool CTFWeaponBuilder::CanDeploy( void )
 //-----------------------------------------------------------------------------
 bool CTFWeaponBuilder::Deploy( void )
 {
-	m_iViewModelIndex = modelinfo->GetModelIndex( GetViewModel( 0 ) );
-	m_iWorldModelIndex = modelinfo->GetModelIndex( GetWorldModel() );
-
 	bool bDeploy = BaseClass::Deploy();
 
 	if ( bDeploy )
@@ -127,6 +124,8 @@ bool CTFWeaponBuilder::Deploy( void )
 			return false;
 
 		pPlayer->SetNextAttack( gpGlobals->curtime );
+
+		m_iWorldModelIndex = modelinfo->GetModelIndex( GetWorldModel() );
 
 		m_flNextDenySound = 0;
 
@@ -351,7 +350,7 @@ void CTFWeaponBuilder::SwitchOwnersWeaponToLast()
 		CBaseCombatWeapon *pWpn = pOwner->Weapon_GetSlot( 2 );
 
 		// Don't store last weapon when we autoswitch off builder
-		CBaseCombatWeapon *pLastWpn = pOwner->GetLastWeapon();
+		CBaseCombatWeapon *pLastWpn = pOwner->Weapon_GetLast();
 
 		if ( pWpn )
 		{
@@ -377,7 +376,7 @@ void CTFWeaponBuilder::SwitchOwnersWeaponToLast()
 	else
 	{
 		// for all other classes, just switch to last weapon used
-		pOwner->Weapon_Switch( pOwner->GetLastWeapon() );
+		pOwner->Weapon_Switch( pOwner->Weapon_GetLast() );
 	}
 }
 

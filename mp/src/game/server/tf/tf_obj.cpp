@@ -39,6 +39,7 @@
 #include "tf_obj_sapper.h"
 #include "particle_parse.h"
 #include "tf_fx.h"
+#include "explode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -57,9 +58,6 @@ ConVar object_verbose( "object_verbose", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONL
 ConVar obj_damage_factor( "obj_damage_factor","0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Factor applied to all damage done to objects" );
 ConVar obj_child_damage_factor( "obj_child_damage_factor","0.25", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Factor applied to damage done to objects that are built on a buildpoint" );
 ConVar tf_fastbuild("tf_fastbuild", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
-ConVar tf_obj_ground_clearance( "tf_obj_ground_clearance", "32", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Object corners can be this high above the ground" );
-
-extern short g_sModelIndexFireball;
 
 // Minimum distance between 2 objects to ensure player movement between them
 #define MINIMUM_OBJECT_SAFE_DISTANCE		100
@@ -1153,7 +1151,7 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 
 	m_vecBuildOrigin = GetAbsOrigin();
 
-	int contents = UTIL_PointContents( m_vecBuildOrigin );
+	int contents = UTIL_PointContents( m_vecBuildOrigin, MASK_WATER );
 	if ( contents & MASK_WATER )
 	{
 		SetWaterLevel( 3 );

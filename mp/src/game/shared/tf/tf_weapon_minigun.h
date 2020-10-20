@@ -56,7 +56,7 @@ public:
 	void			SharedAttack();
 	virtual void	WeaponIdle();
 	virtual bool	SendWeaponAnim( int iActivity );
-	virtual bool	CanHolster( void ) const;
+	virtual bool	CanHolster( void );
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo );
 	virtual bool	Lower( void );
 	virtual void	HandleFireOnEmpty( void );
@@ -87,7 +87,7 @@ private:
 #ifdef CLIENT_DLL
 	// Barrel spinning
 	virtual CStudioHdr *OnNewModel( void );
-	virtual void		StandardBlendingRules( CStudioHdr *hdr, Vector pos[], Quaternion q[], float currentTime, int boneMask );
+	virtual void		StandardBlendingRules( CStudioHdr *hdr, Vector pos[], QuaternionAligned q[], float currentTime, int boneMask );
 	
 	virtual void		UpdateOnRemove( void );
 

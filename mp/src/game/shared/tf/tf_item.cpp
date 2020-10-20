@@ -72,7 +72,7 @@ void CTFItem::Drop( CTFPlayer *pPlayer, bool bVisible, bool bThrown /*= false*/,
 bool CTFItem::ShouldDraw()
 {
 	// If I'm carrying the flag, don't draw it
-	if ( GetMoveParent() == C_BasePlayer::GetLocalPlayer() && !C_BasePlayer::ShouldDrawLocalPlayer() )
+	if ( GetMoveParent() == C_BasePlayer::GetLocalPlayer() && !C_BasePlayer::GetLocalPlayer() )
 		return false;
 
 	return BaseClass::ShouldDraw();

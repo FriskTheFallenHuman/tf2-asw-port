@@ -32,7 +32,8 @@ void PrecacheSyringe(void *pUser)
 	g_sModelIndexSyringe = modelinfo->GetModelIndex( SYRINGE_MODEL );
 }
 
-PRECACHE_REGISTER_FN(PrecacheSyringe);
+PRECACHE_REGISTER_BEGIN( GLOBAL, PrecacheSyringe )
+PRECACHE_REGISTER_END()
 
 CTFProjectile_Syringe::CTFProjectile_Syringe()
 {
@@ -96,7 +97,7 @@ void ClientsideProjectileSyringeCallback( const CEffectData &data )
 		C_LocalTempEntity *pSyringe = ClientsideProjectileCallback( data, SYRINGE_GRAVITY );
 		if ( pSyringe )
 		{
-			pSyringe->m_nSkin = ( pPlayer->GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
+			pSyringe->SetSkin( ( pPlayer->GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1 );
 			bool bCritical = ( ( data.m_nDamageType & DMG_CRITICAL ) != 0 );
 			pSyringe->AddParticleEffect( GetSyringeTrailParticleName( pPlayer->GetTeamNumber(), bCritical ) );
 			pSyringe->AddEffects( EF_NOSHADOW );
@@ -105,6 +106,6 @@ void ClientsideProjectileSyringeCallback( const CEffectData &data )
 	}
 }
 
-DECLARE_CLIENT_EFFECT( SYRINGE_DISPATCH_EFFECT, ClientsideProjectileSyringeCallback );
+DECLARE_CLIENT_EFFECT( ClientProjectile_Syringe, ClientsideProjectileSyringeCallback );
 
 #endif

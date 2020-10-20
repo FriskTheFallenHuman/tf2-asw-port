@@ -84,8 +84,6 @@ ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
 #ifdef GAME_DLL
 // TF overrides the default value of this convar
 ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY, "WaitingForPlayers time length in seconds" );
-ConVar tf_gravetalk( "tf_gravetalk", "1", FCVAR_NOTIFY, "Allows living players to hear dead players using text/voice chat." );
-ConVar tf_spectalk( "tf_spectalk", "1", FCVAR_NOTIFY, "Allows living players to hear spectators using text chat." );
 #endif
 
 #ifdef GAME_DLL
@@ -396,7 +394,6 @@ CTFGameRules::CTFGameRules()
 	m_iPrevRoundState = -1;
 	m_iCurrentRoundState = -1;
 	m_iCurrentMiniRoundMask = 0;
-	m_flTimerMayExpireAt = -1.0f;
 
 	// Lets execute a map specific cfg file
 	// ** execute this after server.cfg!
@@ -1009,7 +1006,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			{
 				if ( pTalker->IsAlive() == false )
 				{
-					if ( pListener->IsAlive() == false || tf_gravetalk.GetBool() )
+					if ( pListener->IsAlive() == false )
 						return ( pListener->InSameTeam( pTalker ) );
 
 					return false;
@@ -1165,6 +1162,26 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 			return true;
 		}
+		else if ( FStrEq( pcmd, "freezecam_taunt" ) )
+		{	
+			// let's check this came from the client .dll and not the console
+			int iCmdPlayerID = pPlayer->GetUserID();
+			unsigned short mask = UTIL_GetAchievementEventMask();
+
+			int iAchieverIndex = atoi( args[1] ) ^ mask;
+			int code = ( iCmdPlayerID ^ iAchieverIndex ) ^ mask;
+			if ( code == atoi( args[2] ) )
+			{
+				CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByIndex( iAchieverIndex ) );
+				if ( pAchiever && ( pAchiever->GetUserID() != iCmdPlayerID ) )
+				{
+					int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
+					pAchiever->AwardAchievement( g_TauntCamAchievements[ iClass ] );
+				}
+			}
+
+			return true;
+		}
 		else if( pPlayer->ClientCommand( args ) )
 		{
             return true;
@@ -1298,12 +1315,10 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	void CTFGameRules::GoToIntermission( void )
 	{
-		CTF_GameStats.Event_GameEnd();
-
 		BaseClass::GoToIntermission();
 	}
 
-	bool CTFGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info)
+	bool CTFGameRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker )
 	{
 		// guard against NULL pointers if players disconnect
 		if ( !pPlayer || !pAttacker )
@@ -1326,7 +1341,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 		}
 
-		return BaseClass::FPlayerCanTakeDamage(pPlayer, pAttacker, info);
+		return BaseClass::FPlayerCanTakeDamage( pPlayer, pAttacker );
 	}
 
 Vector DropToGround( 
@@ -1641,34 +1656,6 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	int iFov = atoi(pszFov);
 	iFov = clamp( iFov, 75, 90 );
 	pTFPlayer->SetDefaultFOV( iFov );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void CTFGameRules::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValues )
-{
-	BaseClass::ClientCommandKeyValues( pEntity, pKeyValues );
-
-	CTFPlayer *pPlayer = ToTFPlayer( CBaseEntity::Instance( pEntity ) );
-	if ( !pPlayer )
-		return;
-
-	if ( FStrEq( pKeyValues->GetName(), "FreezeCamTaunt" ) )
-	{
-		int iAchieverIndex = pKeyValues->GetInt( "achiever" );
-		CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByIndex( iAchieverIndex ) );
-
-		if ( pAchiever && pAchiever != pPlayer )
-		{
-			int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
-
-			if ( g_TauntCamAchievements[iClass] != 0 )
-			{
-				pAchiever->AwardAchievement( g_TauntCamAchievements[iClass] );
-			}
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2374,18 +2361,11 @@ bool CTFGameRules::TimerMayExpire( void )
 {
 	// Prevent timers expiring while control points are contested
 	int iNumControlPoints = ObjectiveResource()->GetNumControlPoints();
-	for ( int iPoint = 0; iPoint < iNumControlPoints; iPoint++ )
+	for ( int iPoint = 0; iPoint < iNumControlPoints; iPoint ++ )
 	{
-		if ( ObjectiveResource()->GetCappingTeam( iPoint ) )
-		{
-			// HACK: Fix for some maps adding time to the clock 0.05s after CP is capped.
-			m_flTimerMayExpireAt = gpGlobals->curtime + 0.1f;
+		if ( ObjectiveResource()->GetCappingTeam(iPoint) )
 			return false;
-		}
 	}
-
-	if ( m_flTimerMayExpireAt >= gpGlobals->curtime )
-		return false;
 
 	return true;
 }
@@ -2416,8 +2396,6 @@ void CTFGameRules::RoundRespawn( void )
 
 		pTeam->SetFlagCaptures( 0 );
 	}
-
-	CTF_GameStats.ResetRoundStats();
 
 	BaseClass::RoundRespawn();
 

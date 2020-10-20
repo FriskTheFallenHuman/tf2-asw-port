@@ -6,7 +6,7 @@
 //
 //=============================================================================//
 #include "cbase.h"
-#include "../EventLog.h"
+#include "EventLog.h"
 #include "team.h"
 #include "teamplayroundbased_gamerules.h"
 #include "tf_gamerules.h"
@@ -611,7 +611,7 @@ CTFEventLog g_TFEventLog;
 //-----------------------------------------------------------------------------
 // Singleton access
 //-----------------------------------------------------------------------------
-IGameSystem* GameLogSystem()
+CEventLog* GameLogSystem()
 {
 	return &g_TFEventLog;
 }

@@ -113,7 +113,7 @@ Activity CTFPlayerAnimState::TranslateActivity( Activity actDesired )
 
 	if ( GetTFPlayer()->GetActiveWeapon() )
 	{
-		translateActivity = GetTFPlayer()->GetActiveWeapon()->ActivityOverride( translateActivity, NULL );
+		translateActivity = GetTFPlayer()->GetActiveWeapon()->ActivityOverride( translateActivity, false );
 	}
 
 	return translateActivity;
@@ -164,7 +164,7 @@ void CTFPlayerAnimState::Update( float eyeYaw, float eyePitch )
 	}
 
 #ifdef CLIENT_DLL 
-	if ( C_BasePlayer::ShouldDrawLocalPlayer() )
+	//if ( C_BasePlayer::ShouldDrawLocalPlayer() )
 	{
 		GetBasePlayer()->SetPlaybackRate( 1.0f );
 	}
