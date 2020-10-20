@@ -10,7 +10,7 @@
 #pragma once
 #endif
 
-#include "tier1/utlsymbol.h"
+#include "utlsymbol.h"
 
 class CUtlBuffer;
 #include "tier0/dbg.h"

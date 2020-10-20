@@ -16,6 +16,11 @@
 #include "tier1/convar.h"
 
 //-----------------------------------------------------------------------------
+// Forward declarations
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
 // Call this to connect to/disconnect from all tier 1 libraries.
 // It's up to the caller to check the globals it cares about to see if ones are missing
 //-----------------------------------------------------------------------------

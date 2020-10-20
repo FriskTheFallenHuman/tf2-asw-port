@@ -174,19 +174,10 @@ public:
 
 	virtual bool GetFileSystemDLLName( char *pOut, int nMaxChars, bool &bIsSteam )
 	{
-		bSteam = false;
-		// Inside of here, we don't have a filesystem yet, so we have to assume that the filesystem_stdio or filesystem_steam
-		// is in this same directory with us.
-		char executablePath[MAX_PATH];
-		if ( !FileSystem_GetExecutableDir( executablePath, sizeof( executablePath ) )	)
-			return SetupFileSystemError( false, FS_INVALID_PARAMETERS, "FileSystem_GetExecutableDir failed." );
-	
-		Q_snprintf( pFileSystemDLL, nMaxLen, "%s%cfilesystem_steam.dll", executablePath, CORRECT_PATH_SEPARATOR );
-		bSteam = true;
-		/*// Our path should already include game\bin, so just use the filename directly
+		// Our path should already include game\bin, so just use the filename directly
 		// and don't try to figure out an absolute path to it as CSteamApplication does.
 		V_strncpy( pOut, "filesystem_stdio", nMaxChars );
-		bIsSteam = false;*/
+		bIsSteam = false;
 		return true;
 	}
 };

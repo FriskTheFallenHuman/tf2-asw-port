@@ -101,7 +101,7 @@ namespace vgui
 	class ISystem;
 }
 
- 
+
 
 //-----------------------------------------------------------------------------
 // Fills out global DLL exported interface pointers

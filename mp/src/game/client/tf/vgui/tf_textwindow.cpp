@@ -65,10 +65,10 @@ void CTFTextWindow::ApplySchemeSettings( IScheme *pScheme )
 
 	Reset();
 
-	if ( m_pHTMLMessage )
+	/*if ( m_pHTMLMessage )
 	{
 		m_pHTMLMessage->SetBgColor( pScheme->GetColor( "HTMLBackground", Color( 255, 0, 0, 255 ) ) );
-	}
+	}*/
 }
 
 //-----------------------------------------------------------------------------
